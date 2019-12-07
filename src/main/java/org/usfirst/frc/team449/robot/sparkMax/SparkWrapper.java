@@ -770,11 +770,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
         double feedforward;
 
         //Set proper PID constants
-<<<<<<< HEAD
         if (data.isBackwards()) {
-=======
-        if (data.isInverted()) {
->>>>>>> b1477ca3c4aaa2255c4692140da52325ded17815
             if (data.isVelocityOnly()) {
                 this.canSpark.getPIDController().setP(0, 1);
                 this.canSpark.getPIDController().setI(0, 1);
