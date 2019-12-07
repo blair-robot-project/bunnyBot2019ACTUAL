@@ -1,12 +1,9 @@
 ---
-onRedSwitch:
-  org.usfirst.frc.team449.robot.jacksonWrappers.MappedDigitalInput:
-    '@id': allianceSwitch
-    channel: 0
 logger:
   '@id': logger
   eventLogFilename: "/home/lvuser/logs/eventLog-"
   telemetryLogFilename: "/home/lvuser/logs/telemetryLog-"
+  loopTimeMillis: 100
   loggables:
     - org.usfirst.frc.team449.robot.jacksonWrappers.PDP:
         '@id': PDP
@@ -245,19 +242,12 @@ logger:
         currentLimit: 30
         reverseOutput: false
     - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-        '@id': shooterMotor
-        port: 7
+        '@id': intakeMotor
+        port: 5
         enableBrakeMode: false
         enableVoltageComp: true
         currentLimit: 30
         reverseOutput: false
-    -org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-      '@id': intakeMotor
-      port: 5
-      enableBrakeMode: false
-      enableVoltageComp: true
-      currentLimit: 30
-      reverseOutput: false
 defaultCommands:
   - subsystem:
       org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
@@ -316,7 +306,8 @@ buttons:
               org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
                 intakeMotor
             inFastVel: 1
-            inSlowVel: -0.2
+            inSlowVel: 0
+            outFastVel: -0.2
         mode: IN_FAST
     action: WHEN_PRESSED
   - button:
@@ -332,7 +323,7 @@ buttons:
         subsystem:
           org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
             fuelIntake
-        mode: OFF
+        mode: "OFF"
     action: WHEN_PRESSED
   - button:
       org.usfirst.frc.team449.robot.oi.buttons.dPadButton:
@@ -359,9 +350,10 @@ buttons:
           org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
             '@id': shooter
             motor:
-              shooterMotor
+              org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+                shooterMotor
             inFastVel: -1
-            inSlowVel: -0.2
+            inSlowVel: 0
             outFastVel: 1
         mode: OUT_FAST
     action: WHILE_HELD
