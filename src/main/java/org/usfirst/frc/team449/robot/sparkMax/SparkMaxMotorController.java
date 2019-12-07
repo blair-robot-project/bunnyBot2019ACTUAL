@@ -234,11 +234,7 @@ public class SparkMaxMotorController extends CANSparkMax {
      * The duration in ms of the current trajectory point.
      */
     public int getTimeDurMs() {
-<<<<<<< HEAD
-        return this.activePoint().timeDur.value;
-=======
         return this.activePoint().timeDur;
->>>>>>> LimelightTesting
     }
 
     /**
