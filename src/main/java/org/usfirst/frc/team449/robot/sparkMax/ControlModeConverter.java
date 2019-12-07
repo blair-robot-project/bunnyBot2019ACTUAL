@@ -24,7 +24,7 @@ public class ControlModeConverter {
             case MotionProfile:
                 return ControlType.kSmartMotion;
             case MotionMagic:
-            case MotionMagicArc:
+            //case MotionMagicArc:
             case MotionProfileArc:
             case Disabled:
             default:

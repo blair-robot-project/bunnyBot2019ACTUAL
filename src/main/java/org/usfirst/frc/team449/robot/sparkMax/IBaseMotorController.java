@@ -294,7 +294,7 @@ public interface IBaseMotorController extends com.ctre.phoenix.motorcontrol.IMot
      *
      * @return The output current (in amps).
      */
-    @Override
+    //@Override
     double getOutputCurrent();
 
     /**
@@ -884,7 +884,7 @@ public interface IBaseMotorController extends com.ctre.phoenix.motorcontrol.IMot
      *            0 for Primary closed-loop. 1 for cascaded closed-loop.
      * @return The closed loop target.
      */
-    int getClosedLoopTarget(int pidIdx);
+    double getClosedLoopTarget(int pidIdx);
 
     /**
      * Gets the active trajectory target position using
