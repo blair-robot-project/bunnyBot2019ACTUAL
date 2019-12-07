@@ -770,7 +770,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
         double feedforward;
 
         //Set proper PID constants
-        if (data.isInverted()) {
+        if (data.isBackwards()) {
             if (data.isVelocityOnly()) {
                 this.canSpark.getPIDController().setP(0, 1);
                 this.canSpark.getPIDController().setI(0, 1);
@@ -810,7 +810,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
             point.profileSlotSelect0 = 1;        // gain selection, we always put MP gains in slot 1.
 
             // Set all the fields of the profile point
-            point.position = this.feetToEncoder(startPosition + (data.getData()[i][0] * (data.isInverted() ? -1 : 1)));
+            point.position = this.feetToEncoder(startPosition + (data.getData()[i][0] * (data.isBackwards() ? -1 : 1)));
 
             feedforward = this.currentGearSettings.getFeedForwardComponent().calcMPVoltage(data.getData()[i][0],
                     data.getData()[i][1], data.getData()[i][2]);
