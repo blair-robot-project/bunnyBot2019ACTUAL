@@ -804,7 +804,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
         for (int i = 0; i < data.getData().length; ++i) {
             final TrajectoryPoint point = new TrajectoryPoint();
             //Have to set this so the Spark doesn't throw a null pointer. May be fixed in a future release.
-            point.timeDur = TrajectoryPoint.TrajectoryDuration.Trajectory_Duration_0ms;
+            point.timeDur = data.getPointTimeMillis();
 
             //Set parameters that are true for all points
             point.profileSlotSelect0 = 1;        // gain selection, we always put MP gains in slot 1.
