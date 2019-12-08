@@ -289,13 +289,13 @@ public interface IBaseMotorController extends com.ctre.phoenix.motorcontrol.IMot
     @Override
     double getMotorOutputVoltage();
 
-    /**
-     * Gets the output current of the motor controller.
-     *
-     * @return The output current (in amps).
-     */
-    //@Override
-    double getOutputCurrent();
+//    /**
+//     * Gets the output current of the motor controller.
+//     *
+//     * @return The output current (in amps).
+//     */
+//    @Override
+//    double getOutputCurrent();
 
     /**
      * Gets the temperature of the motor controller.

@@ -9,8 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.revrobotics.*;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.Notifier;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +18,7 @@ import org.usfirst.frc.team449.robot.generalInterfaces.loggable.Loggable;
 import org.usfirst.frc.team449.robot.generalInterfaces.shiftable.Shiftable;
 import org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.SimpleMotor;
 import org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon;
+import org.usfirst.frc.team449.robot.jacksonWrappers.PDP;
 import org.usfirst.frc.team449.robot.other.Clock;
 import org.usfirst.frc.team449.robot.other.Logger;
 import org.usfirst.frc.team449.robot.other.MotionProfileData;
@@ -37,7 +36,7 @@ import java.util.Map;
  * @see FPSTalon
  */
 @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
-public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor, Shiftable, Loggable {
+public class SparkWrapper extends SmartMotorControllerBase implements SmartMotorController, SimpleMotor, Shiftable, Loggable {
     /**
      * test out how many PWM cycles it should go on after
      * overcurrent, or not at all. Putting it at 0 because
@@ -128,7 +127,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
                         final boolean reverseOutput,
                         @JsonProperty(required = true) final boolean enableBrakeMode,
                         @NotNull @JsonProperty(required = true) final RunningLinRegComponent voltagePerCurrentLinReg,
-                        @NotNull @JsonProperty(required = true) final org.usfirst.frc.team449.robot.jacksonWrappers.PDP PDP,
+                        @NotNull @JsonProperty(required = true) final PDP PDP,
                         @Nullable final Boolean fwdLimitSwitchNormallyOpen,
                         @Nullable final Boolean revLimitSwitchNormallyOpen,
                         @Nullable final Double fwdSoftLimit,
@@ -285,6 +284,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
                 this.canSpark.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
             }
         } else {
+            // This assumes that the kNoSensor causes the cpr to be ignored.
             this.encoder = new CANEncoder(this.canSpark, EncoderType.kNoSensor, 0);
         }
         this.canSpark.getPIDController().setFeedbackDevice(this.encoder);
@@ -305,7 +305,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
         }
 
         //Enable or disable voltage comp
-        this.canSpark.enableVoltageCompensation(enableVoltageComp ? CANMotorControllerBase.voltageCompensation : 0);
+        this.canSpark.enableVoltageCompensation(enableVoltageComp ? voltageCompensation : 0);
 
         // TODO: Don't think this is possible.
         // canSpark.configVoltageMeasurementFilter(voltageCompSamples != null ? voltageCompSamples : 32, 0);
@@ -316,6 +316,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
         // TODO: I don't think Spark supports differential control, either.
         // canSpark.selectProfileSlot(0, 0);
 
+        // TODO: Slaves are not implemented
 		/* I doubt these will be used
 		if (slaveTalons != null) {
 			//Set up slaves.
@@ -750,7 +751,12 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
      * Starts running the loaded motion profile.
      */
     public void startRunningMP() {
-        canSpark.set(ControlType.kSmartMotion, SetValueMotionProfile.Enable.value);
+        this.canSpark.set(ControlType.kSmartMotion, SetValueMotionProfile.Enable.value);
+    }
+
+    @Override
+    public void holdPositionMP() {
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -804,7 +810,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
         for (int i = 0; i < data.getData().length; ++i) {
             final TrajectoryPoint point = new TrajectoryPoint();
             //Have to set this so the Spark doesn't throw a null pointer. May be fixed in a future release.
-            point.timeDur = data.getPointTimeMillis();
+            point.timeDur = 0;
 
             //Set parameters that are true for all points
             point.profileSlotSelect0 = 1;        // gain selection, we always put MP gains in slot 1.
@@ -900,7 +906,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
     /**
      * An object representing the canSpark settings that are different for each gear.
      */
-    protected static class PerGearSettings extends CANMotorControllerBase.PerGearSettings {
+    protected static class PerGearSettings extends SmartMotorControllerBase.PerGearSettings {
 
         /**
          * The gear number this is the settings for.
