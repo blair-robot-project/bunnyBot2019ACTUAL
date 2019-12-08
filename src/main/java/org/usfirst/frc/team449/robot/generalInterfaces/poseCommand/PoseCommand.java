@@ -1,11 +1,12 @@
 package org.usfirst.frc.team449.robot.generalInterfaces.poseCommand;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.usfirst.frc.team449.robot.other.Waypoint;
 
-import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 /**
- * An interface for commands that take a position as an argument. This position may change at runtime, so they need a
+ * An interface for commands that take waypoints as an argument. These waypoints may change at runtime, so they need a
  * method to update it.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "@class")
@@ -14,18 +15,14 @@ public interface PoseCommand {
     /**
      * Set the destination to given values.
      *
-     * @param x     The X destination, in feet.
-     * @param y     The Y destination, in feet.
-     * @param theta The destination angle, in degrees.
+     * @param waypoints The points for the path to hit.
      */
-    void setDestination(double x, double y, double theta);
+    void setWaypoints(Waypoint[] waypoints);
 
     /**
-     * Set the destination to doubles from a function.
+     * Set the destination to a waypoint array from a function.
      *
-     * @param xSupplier     A getter for the X destination, in feet.
-     * @param ySupplier     A getter for the Y destination, in feet.
-     * @param thetaSupplier A getter for the destination angle, in degrees.
+     * @param waypointSupplier The supplier for the points for the path to hit.
      */
-    void setDestination(DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier thetaSupplier);
+    void setWaypoints(Supplier<Waypoint[]> waypointSupplier);
 }

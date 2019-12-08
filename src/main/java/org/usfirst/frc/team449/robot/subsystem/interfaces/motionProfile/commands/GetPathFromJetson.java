@@ -1,9 +1,6 @@
 package org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.commands;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import edu.wpi.first.wpilibj.command.Command;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,8 +8,9 @@ import org.usfirst.frc.team449.robot.components.PathRequester;
 import org.usfirst.frc.team449.robot.generalInterfaces.poseCommand.PoseCommand;
 import org.usfirst.frc.team449.robot.other.Logger;
 import org.usfirst.frc.team449.robot.other.MotionProfileData;
+import org.usfirst.frc.team449.robot.other.Waypoint;
 
-import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 /**
  * Requests and receives a profile from the Jetson, accessible via a getter.
@@ -33,22 +31,33 @@ public class GetPathFromJetson extends Command implements PoseCommand {
      * Whether to reset the encoder position before running the profile.
      */
     private final boolean resetPosition;
-    private final double maxVel, maxAccel, maxJerk;
+    /**
+     * The maximum velocity, in feet/second.
+     */
+    private final double maxVel;
+    /**
+     * The maximum acceleration, in feet/(second^2)
+     */
+    private final double maxAccel;
+    /**
+     * The maximum jerk, in feet/(second^3)
+     */
+    private final double maxJerk;
     /**
      * Whether or not to invert the motion profile.
      */
     private boolean inverted;
     /**
-     * Parameters for the motion profile, with x and y in feet and theta in radians. Null to use lambdas.
+     * The points for the path to hit. Null to use lambdas.
      */
     @Nullable
-    private Double x, y, theta;
+    private Waypoint[] waypoints;
     /**
-     * Getters for the motion profile parameters, with x and y in feet and theta in radians. Must not be null if the
-     * Double parameters are null, otherwise are ignored.
+     * Getter for the points for the path to hit. Must not be null if the Waypoint[] parameter is null, otherwise is
+     * ignored.
      */
     @Nullable
-    private DoubleSupplier xSupplier, ySupplier, thetaSupplier;
+    private Supplier<Waypoint[]> waypointSupplier;
     /**
      * The motion profile to return.
      */
@@ -59,32 +68,23 @@ public class GetPathFromJetson extends Command implements PoseCommand {
      * Default constructor.
      *
      * @param pathRequester The object for interacting with the Jetson.
-     * @param x             The X (forwards) distance for the robot to travel, in feet. Can be null to set pose using
-     *                      setters.
-     * @param y             The Y (sideways) distance for the robot to travel, in feet. Can be null to set pose using
-     *                      setters.
-     * @param theta         The angle, in degrees, for the robot to turn to while travelling. Can be null to set pose
-     *                      using setters.
+     * @param waypoints     The points for the path to hit. Can be null to use setters.
      * @param deltaTime     The time between setpoints in the profile, in seconds.
-     * @param maxVel        The maximum velocity, in units/second.
-     * @param maxAccel      The maximum acceleration, in units/(second^2)
-     * @param maxJerk       The maximum jerk, in units/(second^3)
+     * @param maxVel        The maximum velocity, in feet/second.
+     * @param maxAccel      The maximum acceleration, in feet/(second^2)
+     * @param maxJerk       The maximum jerk, in feet/(second^3)
      * @param resetPosition Whether or not to reset the encoder position before running the profile.
      */
     @JsonCreator
     public GetPathFromJetson(@NotNull @JsonProperty(required = true) PathRequester pathRequester,
-                             @Nullable Double x,
-                             @Nullable Double y,
-                             @Nullable Double theta,
+                             @Nullable Waypoint[] waypoints,
                              @JsonProperty(required = true) double deltaTime,
                              @JsonProperty(required = true) double maxVel,
                              @JsonProperty(required = true) double maxAccel,
                              @JsonProperty(required = true) double maxJerk,
                              boolean resetPosition) {
         this.pathRequester = pathRequester;
-        this.x = x;
-        this.y = y;
-        this.theta = theta;
+        this.waypoints = waypoints;
         this.deltaTime = deltaTime;
         this.resetPosition = resetPosition;
         this.maxVel = maxVel;
@@ -98,15 +98,24 @@ public class GetPathFromJetson extends Command implements PoseCommand {
     @Override
     protected void initialize() {
         Logger.addEvent("GetPathFromJetson init", this.getClass());
-        if (xSupplier == null) {
-            inverted = x < 0;
-            pathRequester.requestPath(Math.abs(x), y, (inverted ? -1 : 1) * theta, deltaTime, maxVel, maxAccel, maxJerk);
-        } else {
-            //Store getAsDouble in x so it doesn't change between checking inversion and requesting the path
-            x = xSupplier.getAsDouble();
-            inverted = x < 0;
-            pathRequester.requestPath(Math.abs(x), ySupplier.getAsDouble(), (inverted ? -1 : 1) * thetaSupplier.getAsDouble(), deltaTime, maxVel, maxAccel, maxJerk);
+        //Check if we're using the supplier or the parameter
+        if (waypointSupplier != null) {
+            waypoints = waypointSupplier.get();
         }
+
+        //Check inversion
+        inverted = waypoints[0].getX() < 0;
+        if (inverted) {
+            for (Waypoint waypoint : waypoints) {
+                waypoint.setX(-waypoint.getX());
+                waypoint.setThetaDegrees(-waypoint.getThetaDegrees());
+            }
+        }
+
+        //Request the path
+        pathRequester.requestPath(waypoints, deltaTime, maxVel, maxAccel, maxJerk);
+
+        //Wipe any previous profiles
         motionProfileData = null;
     }
 
@@ -158,34 +167,24 @@ public class GetPathFromJetson extends Command implements PoseCommand {
     /**
      * Set the destination to given values.
      *
-     * @param x     The X destination, in feet.
-     * @param y     The Y destination, in feet.
-     * @param theta The destination angle, in degrees.
+     * @param waypoints The points for the path to hit.
      */
     @Override
-    public void setDestination(double x, double y, double theta) {
-        this.x = x;
-        this.y = y;
-        this.theta = theta;
-        this.xSupplier = null;
-        this.ySupplier = null;
-        this.thetaSupplier = null;
+    @JsonIgnore
+    public void setWaypoints(Waypoint[] waypoints) {
+        this.waypoints = waypoints;
+        this.waypointSupplier = null;
     }
 
     /**
-     * Set the destination to doubles from a function.
+     * Set the destination to a waypoint array from a function.
      *
-     * @param xSupplier     A getter for the X destination, in feet.
-     * @param ySupplier     A getter for the Y destination, in feet.
-     * @param thetaSupplier A getter for the destination angle, in degrees.
+     * @param waypointSupplier The supplier for the points for the path to hit.
      */
     @Override
-    public void setDestination(DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier thetaSupplier) {
-        this.x = null;
-        this.y = null;
-        this.theta = null;
-        this.xSupplier = xSupplier;
-        this.ySupplier = ySupplier;
-        this.thetaSupplier = thetaSupplier;
+    @JsonIgnore
+    public void setWaypoints(Supplier<Waypoint[]> waypointSupplier) {
+        this.waypoints = null;
+        this.waypointSupplier = waypointSupplier;
     }
 }

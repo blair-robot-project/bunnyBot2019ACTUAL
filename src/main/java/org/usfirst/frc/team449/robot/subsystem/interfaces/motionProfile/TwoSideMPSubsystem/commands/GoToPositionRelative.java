@@ -10,10 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.usfirst.frc.team449.robot.generalInterfaces.poseCommand.PoseCommand;
 import org.usfirst.frc.team449.robot.other.MotionProfileData;
+import org.usfirst.frc.team449.robot.other.Waypoint;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.TwoSideMPSubsystem.SubsystemMPTwoSides;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.commands.GetPathFromJetson;
 
-import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 /**
  * A command that drives the given subsystem to a position relative to the current position.
@@ -39,31 +40,26 @@ public class GoToPositionRelative<T extends Subsystem & SubsystemMPTwoSides> ext
         addSequential(this.getPath);
         addSequential(new RunProfileTwoSides<>(subsystem, this::getLeft,
                 this::getRight, 10));
-//        addSequential(new PrintProfile(this::getLeft, this::getRight));
     }
 
     /**
      * Set the destination to given values.
      *
-     * @param x     The X destination, in feet.
-     * @param y     The Y destination, in feet.
-     * @param theta The destination angle, in degrees.
+     * @param waypoints The points for the path to hit.
      */
     @Override
-    public void setDestination(double x, double y, double theta) {
-        getPath.setDestination(x, y, theta);
+    public void setWaypoints(Waypoint[] waypoints) {
+        getPath.setWaypoints(waypoints);
     }
 
     /**
-     * Set the destination to doubles from a function.
+     * Set the destination to a waypoint array from a function.
      *
-     * @param xSupplier     A getter for the X destination, in feet.
-     * @param ySupplier     A getter for the Y destination, in feet.
-     * @param thetaSupplier A getter for the destination angle, in degrees.
+     * @param waypointSupplier The supplier for the points for the path to hit.
      */
     @Override
-    public void setDestination(DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier thetaSupplier) {
-        getPath.setDestination(xSupplier, ySupplier, thetaSupplier);
+    public void setWaypoints(Supplier<Waypoint[]> waypointSupplier) {
+        getPath.setWaypoints(waypointSupplier);
     }
 
     /**

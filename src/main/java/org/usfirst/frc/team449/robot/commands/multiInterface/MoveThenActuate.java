@@ -54,7 +54,7 @@ public class MoveThenActuate<T extends Subsystem & SubsystemPosition & Subsystem
      */
     @Override
     protected void initialize() {
-        Logger.addEvent("GoToPosition init.", this.getClass());
+        Logger.addEvent("GoToPose init.", this.getClass());
         subsystem.setPositionSetpoint(setpoint);
     }
 
@@ -83,7 +83,7 @@ public class MoveThenActuate<T extends Subsystem & SubsystemPosition & Subsystem
     protected void end() {
         subsystem.setSolenoid(setPistonTo);
         subsystem.disableMotor();
-        Logger.addEvent("GoToPosition end.", this.getClass());
+        Logger.addEvent("GoToPose end.", this.getClass());
     }
 
     /**
@@ -91,6 +91,6 @@ public class MoveThenActuate<T extends Subsystem & SubsystemPosition & Subsystem
      */
     @Override
     protected void interrupted() {
-        Logger.addEvent("GoToPosition interrupted!", this.getClass());
+        Logger.addEvent("GoToPose interrupted!", this.getClass());
     }
 }

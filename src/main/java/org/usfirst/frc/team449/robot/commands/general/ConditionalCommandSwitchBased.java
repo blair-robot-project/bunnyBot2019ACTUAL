@@ -2,7 +2,6 @@ package org.usfirst.frc.team449.robot.commands.general;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.command.Command;
@@ -22,8 +21,8 @@ public class ConditionalCommandSwitchBased extends ConditionalCommand {
      * @param rightSwitch The Command to execute if the right side of the switch is our alliance color.
      */
     @JsonCreator
-    public ConditionalCommandSwitchBased(@NotNull @JsonProperty(required = true) Command leftSwitch,
-                                         @NotNull @JsonProperty(required = true) Command rightSwitch) {
+    public ConditionalCommandSwitchBased(@NotNull Command leftSwitch,
+                                         @NotNull Command rightSwitch) {
         super(leftSwitch, rightSwitch);
     }
 

@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.command.Subsystem;
 import org.jetbrains.annotations.NotNull;
 import org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.SimpleMotor;
 import org.usfirst.frc.team449.robot.jacksonWrappers.MappedDoubleSolenoid;
+import org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.intake.SubsystemIntake;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.SubsystemSolenoid;
 
@@ -16,24 +16,12 @@ import org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.SubsystemSole
  * An intake that goes up and down with a piston.
  */
 @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
-public class IntakeActuated extends Subsystem implements SubsystemSolenoid, SubsystemIntake {
+public class IntakeActuated extends IntakeSimple implements SubsystemSolenoid, SubsystemIntake {
 
     /**
      * The piston for actuating the intake.
      */
     private final DoubleSolenoid piston;
-    /**
-     * The motor for the intake.
-     */
-    private final SimpleMotor motor;
-    /**
-     * The speed to run the motor at going fast and slow, respectively.
-     */
-    private final double fastSpeed, slowSpeed;
-    /**
-     * The current state of the intake.
-     */
-    private IntakeMode currentMode;
     /**
      * The current position of the piston
      */
@@ -52,10 +40,8 @@ public class IntakeActuated extends Subsystem implements SubsystemSolenoid, Subs
                           @NotNull @JsonProperty(required = true) SimpleMotor motor,
                           @JsonProperty(required = true) double fastSpeed,
                           @JsonProperty(required = true) double slowSpeed) {
+        super(motor, slowSpeed, fastSpeed, -slowSpeed, -fastSpeed);
         this.piston = piston;
-        this.motor = motor;
-        this.fastSpeed = fastSpeed;
-        this.slowSpeed = slowSpeed;
     }
 
     /**
@@ -66,39 +52,6 @@ public class IntakeActuated extends Subsystem implements SubsystemSolenoid, Subs
     @Override
     protected void initDefaultCommand() {
         //Do nothing
-    }
-
-    /**
-     * @return the current mode of the intake.
-     */
-    @Override
-    public @NotNull IntakeMode getMode() {
-        return currentMode;
-    }
-
-    /**
-     * @param mode The mode to switch the intake to.
-     */
-    @Override
-    public void setMode(@NotNull IntakeMode mode) {
-        this.currentMode = mode;
-        switch (mode) {
-            case OFF:
-                motor.disable();
-                break;
-            case IN_FAST:
-                motor.setVelocity(fastSpeed);
-                break;
-            case IN_SLOW:
-                motor.setVelocity(slowSpeed);
-                break;
-            case OUT_FAST:
-                motor.setVelocity(-fastSpeed);
-                break;
-            case OUT_SLOW:
-                motor.setVelocity(-slowSpeed);
-                break;
-        }
     }
 
     /**

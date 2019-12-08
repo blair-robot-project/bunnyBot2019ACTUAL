@@ -3,7 +3,6 @@ package org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.feed
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
-import org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.FeedForwardComponent.FeedForwardComponent;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -34,17 +33,17 @@ public class FeedForwardMPElevatorComponent extends FeedForwardComponent {
     /**
      * Default constructor.
      *
-     * @param feetToVoltageMap A map of the upper heights of each elevator stage to the {@link FeedForwardComponent}
-     *                         that should be used for that stage.
+     * @param feetToFFComponentMap A map of the upper heights of each elevator stage to the {@link FeedForwardComponent}
+     *                             that should be used for that stage.
      */
     @JsonCreator
-    public FeedForwardMPElevatorComponent(@NotNull @JsonProperty(required = true) Map<Double, FeedForwardComponent> feetToVoltageMap) {
+    public FeedForwardMPElevatorComponent(@NotNull @JsonProperty(required = true) Map<Double, FeedForwardComponent> feetToFFComponentMap) {
         //Sort the positions and voltages so we can find the correct voltage to use faster.
-        positions = feetToVoltageMap.keySet().toArray(new Double[0]);
+        positions = feetToFFComponentMap.keySet().toArray(new Double[0]);
         Arrays.sort(positions);
         feedForwardComponents = new FeedForwardComponent[positions.length];
         for (int i = 0; i < positions.length; i++) {
-            feedForwardComponents[i] = feetToVoltageMap.get(positions[i]);
+            feedForwardComponents[i] = feetToFFComponentMap.get(positions[i]);
         }
     }
 
@@ -64,15 +63,16 @@ public class FeedForwardMPElevatorComponent extends FeedForwardComponent {
                 return (feedForwardComponents[i].calcMPVoltage(positionSetpoint, velSetpoint, accelSetpoint));
             }
         }
+        System.out.println("Catch case!");
         //Catch case.
         return 0;
     }
 
     /**
-     * Calculate the feedforward for the given input.
+     * Calculate the voltage to use as a feedforward for the given position.
      *
-     * @param operand the setpoint, in feet, feet/sec, feet/sec^2, etc.
-     * @return the feedforward (kF gain) to use for that input.
+     * @param operand the setpoint, in feet.
+     * @return the feedforward voltage to use for that input.
      */
     @Override
     public double applyAsDouble(double operand) {
