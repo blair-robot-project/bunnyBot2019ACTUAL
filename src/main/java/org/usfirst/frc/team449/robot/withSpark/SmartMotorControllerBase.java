@@ -1,10 +1,8 @@
 package org.usfirst.frc.team449.robot.withSpark;
 
-import edu.wpi.first.wpilibj.Notifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.usfirst.frc.team449.robot.components.RunningLinRegComponent;
-import org.usfirst.frc.team449.robot.jacksonWrappers.PDP;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +10,7 @@ import java.util.Map;
 /**
  * {@link org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon}, but as an abstract class.
  */
-public abstract class CANMotorControllerBase {
+public abstract class SmartMotorControllerBase {
 	/**
 	 * The PDP this motor is connected to.
 	 */
@@ -85,16 +83,16 @@ public abstract class CANMotorControllerBase {
 
 	protected static final double voltageCompensation = 12;
 
-	public CANMotorControllerBase(@NotNull org.usfirst.frc.team449.robot.jacksonWrappers.PDP PDP,
-								  @Nullable Integer encoderCPR,
-								  double postEncoderGearing,
-								  double feetPerRotation,
-								  int minNumPointsInBottomBuffer,
-								  double updaterProcessPeriodSecs,
-								  @NotNull String name,
-								  @NotNull RunningLinRegComponent voltagePerCurrentLinReg,
-								  boolean fwdLimitSwitchNormallyOpen,
-								  boolean revLimitSwitchNormallyOpen) {
+	public SmartMotorControllerBase(@NotNull org.usfirst.frc.team449.robot.jacksonWrappers.PDP PDP,
+									@Nullable Integer encoderCPR,
+									double postEncoderGearing,
+									double feetPerRotation,
+									int minNumPointsInBottomBuffer,
+									double updaterProcessPeriodSecs,
+									@NotNull String name,
+									@NotNull RunningLinRegComponent voltagePerCurrentLinReg,
+									boolean fwdLimitSwitchNormallyOpen,
+									boolean revLimitSwitchNormallyOpen) {
 		this.PDP = PDP;
 		this.encoderCPR = encoderCPR;
 		this.postEncoderGearing = postEncoderGearing;
