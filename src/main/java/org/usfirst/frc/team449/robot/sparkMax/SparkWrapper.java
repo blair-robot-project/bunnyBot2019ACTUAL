@@ -285,7 +285,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
                 this.canSpark.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
             }
         } else {
-            this.encoder = new CANEncoder(this.canSpark, EncoderType.kNoSensor, encoderCPR);
+            this.encoder = new CANEncoder(this.canSpark, EncoderType.kNoSensor, 0);
         }
         this.canSpark.getPIDController().setFeedbackDevice(this.encoder);
 
