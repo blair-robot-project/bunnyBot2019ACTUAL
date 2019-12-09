@@ -2,7 +2,7 @@ package org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.feed
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.jetbrains.annotations.NotNull;
-import org.usfirst.frc.team449.robot.generalInterfaces.smartMotor.SmartMotor;
+import org.usfirst.frc.team449.robot.generalInterfaces.smartMotor.SmartMotorBase;
 
 import java.util.function.DoubleUnaryOperator;
 
@@ -16,7 +16,7 @@ public abstract class FeedForwardComponent implements DoubleUnaryOperator {
     /**
      * The motorController this controls the feedforward for.
      */
-    protected SmartMotor motorController;
+    protected SmartMotorBase motorController;
 
     /**
      * Get a FeedForwardComponent that gives no feedforward.
@@ -34,7 +34,7 @@ public abstract class FeedForwardComponent implements DoubleUnaryOperator {
      *
      * @param motorController The motorController this controls the feedforward for.
      */
-    public void setMotorController(@NotNull SmartMotor motorController) {
+    public void setMotorController(@NotNull SmartMotorBase motorController) {
         this.motorController = motorController;
     }
 
