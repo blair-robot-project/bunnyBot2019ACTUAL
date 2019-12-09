@@ -7,10 +7,10 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.usfirst.frc.team449.robot.generalInterfaces.loggable.Loggable;
+import org.usfirst.frc.team449.robot.generalInterfaces.smartMotor.SmartMotor;
 import org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS;
 import org.usfirst.frc.team449.robot.other.Logger;
 import org.usfirst.frc.team449.robot.other.MotionProfileData;
-import org.usfirst.frc.team449.robot.sparkMax.SmartMotorControllerBase;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.AHRS.SubsystemAHRS;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.TwoSideMPSubsystem.SubsystemMPTwoSides;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.TwoSideMPSubsystem.manual.SubsystemMPManualTwoSides;
@@ -25,16 +25,16 @@ public class DriveUnidirectionalWithGyro extends Subsystem implements SubsystemA
         Loggable, SubsystemMPTwoSides, SubsystemMPManualTwoSides{
 
     /**
-     * Right master SmartMotorController
+     * Right master SmartMotor
      */
     @NotNull
-    protected final SmartMotorControllerBase rightMaster;
+    protected final SmartMotor rightMaster;
 
     /**
-     * Left master SmartMotorController
+     * Left master SmartMotor
      */
     @NotNull
-    protected final SmartMotorControllerBase leftMaster;
+    protected final SmartMotor leftMaster;
 
     /**
      * The NavX gyro
@@ -61,8 +61,8 @@ public class DriveUnidirectionalWithGyro extends Subsystem implements SubsystemA
      * @param ahrs        The NavX gyro for calculating this drive's heading and angular velocity.
      */
     @JsonCreator
-    public DriveUnidirectionalWithGyro(@NotNull @JsonProperty(required = true) SmartMotorControllerBase leftMaster,
-                                       @NotNull @JsonProperty(required = true) SmartMotorControllerBase rightMaster,
+    public DriveUnidirectionalWithGyro(@NotNull @JsonProperty(required = true) SmartMotor leftMaster,
+                                       @NotNull @JsonProperty(required = true) SmartMotor rightMaster,
                                        @NotNull @JsonProperty(required = true) MappedAHRS ahrs) {
         super();
         //Initialize stuff

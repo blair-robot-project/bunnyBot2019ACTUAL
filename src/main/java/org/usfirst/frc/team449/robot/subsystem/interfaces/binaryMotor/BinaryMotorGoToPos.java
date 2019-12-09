@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import org.jetbrains.annotations.NotNull;
-import org.usfirst.frc.team449.robot.sparkMax.SmartMotorControllerBase;
+import org.usfirst.frc.team449.robot.generalInterfaces.smartMotor.SmartMotor;
 
 /**
  * A binary motor subsystem that uses PID to go to a given position when turned on.
@@ -18,7 +18,7 @@ public class BinaryMotorGoToPos extends Subsystem implements SubsystemBinaryMoto
      * The motorController to move to the given position.
      */
     @NotNull
-    private final SmartMotorControllerBase motorController;
+    private final SmartMotor motorController;
 
     /**
      * The position, in feet, for the motorController to go to.
@@ -37,7 +37,7 @@ public class BinaryMotorGoToPos extends Subsystem implements SubsystemBinaryMoto
      * @param positionFeet The position, in feet, for the motorController to go to. Defaults to 0.
      */
     @JsonCreator
-    public BinaryMotorGoToPos(@JsonProperty(required = true) @NotNull SmartMotorControllerBase motorController,
+    public BinaryMotorGoToPos(@JsonProperty(required = true) @NotNull SmartMotor motorController,
                               double positionFeet) {
         this.motorController = motorController;
         this.positionFeet = positionFeet;

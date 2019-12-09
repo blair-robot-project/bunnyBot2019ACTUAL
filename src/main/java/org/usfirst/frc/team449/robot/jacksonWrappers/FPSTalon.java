@@ -194,12 +194,12 @@ public class FPSTalon extends SmartMotorBase implements SmartMotor, SimpleMotor,
         //If given no gear settings, use the default values.
         if (perGearSettings == null || perGearSettings.size() == 0) {
             this.perGearSettings.put(0, new PerGearSettings());
-            this.perGearSettings.get(0).getFeedForwardComponent().setTalon(this);
+            this.perGearSettings.get(0).getFeedForwardComponent();
         }
         //Otherwise, map the settings to the gear they are.
         else {
             for (PerGearSettings settings : perGearSettings) {
-                settings.getFeedForwardComponent().setTalon(this);
+                settings.getFeedForwardComponent();
                 this.perGearSettings.put(settings.getGear(), settings);
             }
         }
@@ -843,6 +843,7 @@ public class FPSTalon extends SmartMotorBase implements SmartMotor, SimpleMotor,
      * @param vel The desired velocity in feet/second.
      * @param acc The desired velocity in feet/second^2.
      */
+    @Override
     public void executeMPPoint(double pos, double vel, double acc) {
         setpoint = pos;
         setPositionPID();

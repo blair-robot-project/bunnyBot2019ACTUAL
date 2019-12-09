@@ -8,8 +8,9 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.usfirst.frc.team449.robot.components.PathGenerator;
+import org.usfirst.frc.team449.robot.generalInterfaces.smartMotor.SmartMotor;
+import org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon;
 import org.usfirst.frc.team449.robot.jacksonWrappers.MappedDoubleSolenoid;
-import org.usfirst.frc.team449.robot.sparkMax.SmartMotorControllerBase;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.position.SubsystemPositionOnboardMP;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.SubsystemSolenoid;
 
@@ -45,7 +46,7 @@ public class SubsystemPositionMPWithBrake extends SubsystemPositionOnboardMP imp
      *                             Defaults to {@link DoubleSolenoid.Value#kReverse}.
      */
     @JsonCreator
-    public SubsystemPositionMPWithBrake(@JsonProperty(required = true) @NotNull SmartMotorControllerBase motorController,
+    public SubsystemPositionMPWithBrake(@JsonProperty(required = true) @NotNull SmartMotor motorController,
                                         @JsonProperty(required = true) @NotNull PathGenerator pathGenerator,
                                         @JsonProperty(required = true) @NotNull MappedDoubleSolenoid piston,
                                         @Nullable DoubleSolenoid.Value brakeReleasePosition) {

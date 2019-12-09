@@ -19,23 +19,23 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /**
  * Subclass of {@link CANSparkMax} that implements {@link BaseMotorController} functionality.
  */
-public class SparkMaxMotorController extends CANSparkMax {
+public class SparkWithMPQueue extends CANSparkMax {
     private static final double VEL_EPSILON = 0.0;
     private static final double POS_EPSILON = 0.0;
 
     private Instant activePointActivationTime;
 
-    private ControlType controlMode;
+    private ControlType controlType;
 
-    SparkMaxMotorController(final int deviceID, final MotorType type) {
+    SparkWithMPQueue(final int deviceID, final MotorType type) {
         super(deviceID, type);
     }
 
     /**
      * @see BaseMotorController#getControlMode()
      */
-    public ControlType getControlMode() {
-        return this.controlMode;
+    public ControlType getControlType() {
+        return this.controlType;
     }
 
     /**
@@ -57,8 +57,7 @@ public class SparkMaxMotorController extends CANSparkMax {
 
     /**
      * TODO: I think you're correct in that there's no way to retrieve the mode from the controller.
-     * Not only sets the value and the control type (analogous to ControlMode), but also updates it in
-     * {@link SparkWrapper#motionProfileStatus} because there is no way to retrieve it from the PID controller itself.
+     * Sets the value and the control type.
      *
      * @param outputValue The value to set, which depends on the control mode:
      *                    * For basic control using duty cycle, this should range between -1 and 1.
@@ -69,7 +68,7 @@ public class SparkMaxMotorController extends CANSparkMax {
      * @param mode        The control type to override with.
      * @see BaseMotorController#set(com.ctre.phoenix.motorcontrol.ControlMode, double, double)
      */
-    public void set(final ControlType mode, final double outputValue) {
+    public void setReference(final ControlType mode, final double outputValue) {
         this.getPIDController().setReference(outputValue, mode);
     }
 
@@ -97,29 +96,14 @@ public class SparkMaxMotorController extends CANSparkMax {
         return ErrorCode.OK;
     }
 
-    private static class MotionProfileExecutor {
-        public static final MotionProfileExecutor INSTANCE = new MotionProfileExecutor();
-
-        private MotionProfileExecutor() {
-        }
-
-        public void execute() {
-            // TODO: Doesn't seem like the PID controller supports this, so I'm doing this using the encoder.
-            //  Might need to rework this in case a quadrature encoder is used.
-            //  see if we really need this, the documentation says it just moves stuff into the bottom buffer
-            //  make a different async method to process the buffer of points
-
-        }
-    }
-
     public int getMotionProfileTopLevelBufferCount() {
-        return this.getBufferCount();
+        return this.trajPoints.size();
     }
 
     /**
      * Trajectory points (called the buffer by CTRE)
      */
-    public Queue<TrajectoryPoint> trajPoints = new ConcurrentLinkedQueue<>();
+    private Queue<TrajectoryPoint> trajPoints = new ConcurrentLinkedQueue<>();
 
     /**
      * Set if {@code isUnderrun} ever gets set. Only is cleared by
@@ -165,7 +149,7 @@ public class SparkMaxMotorController extends CANSparkMax {
         this.trajPoints.clear();
     }
 
-    ErrorCode pushMotionProfileTrajectory(final TrajectoryPoint pt) {
+    ErrorCode pushMPPoint(final TrajectoryPoint pt) {
         // According to Talon' documentation, BaseMotorController returns
         // "CTR_OKAY if trajectory point push ok. ErrorCode if buffer is full due to kMotionProfileTopBufferCapacity."
         if (this.trajPoints.size() >= this.bufferCapacity) return ErrorCode.BufferFull;
@@ -173,15 +157,11 @@ public class SparkMaxMotorController extends CANSparkMax {
         return ErrorCode.OK;
     }
 
-    public int getBufferCount() {
-        return this.trajPoints.size();
-    }
-
     /**
-     * The available empty slots in the trajectory buffer.
+     * The number of available empty slots in the trajectory buffer.
      */
     public int getBufferRem() {
-        return this.getBufferCapacity() - this.getBufferCount();
+        return this.getBufferCapacity() - this.getMotionProfileTopLevelBufferCount();
     }
 
     private int getBufferCapacity() {
@@ -198,7 +178,7 @@ public class SparkMaxMotorController extends CANSparkMax {
      * automatically when is resolved.
      */
     public boolean isUnderrun() {
-        return this.getBufferCount() == 0;
+        return this.getMotionProfileTopLevelBufferCount() == 0;
     }
 
     /**
@@ -210,7 +190,7 @@ public class SparkMaxMotorController extends CANSparkMax {
 
     public void copyStatusTo(final MotionProfileStatus statusToFill) {
         statusToFill.topBufferRem = this.getBufferRem();
-        statusToFill.topBufferCnt = this.getBufferCount();
+        statusToFill.topBufferCnt = this.getMotionProfileTopLevelBufferCount();
         statusToFill.btmBufferCnt = 0; // Always zero, since there is no low-level buffer. TODO Should it actually be 1?
         statusToFill.hasUnderrun = this.hasUnderrun();
         statusToFill.isUnderrun = this.isUnderrun();
@@ -247,7 +227,7 @@ public class SparkMaxMotorController extends CANSparkMax {
     private TrajectoryPoint moveToNextPoint() {
         final TrajectoryPoint result = this.trajPoints.poll();
         if (this.isActivePointValid()) {
-            this.getPIDController().setReference(this.getActivePointRefValue(), this.controlMode);
+            this.getPIDController().setReference(this.getActivePointRefValue(), this.controlType);
             this.activePointActivationTime = Instant.now();
         }
         return result;
@@ -261,11 +241,11 @@ public class SparkMaxMotorController extends CANSparkMax {
         if (this.getTimeDurMs() >= Instant.now().until(this.activePointActivationTime, ChronoUnit.MILLIS)) return true;
 
         // Alternatively, check if the point's reference values have been reached.
-        switch (this.controlMode) {
+        switch (this.controlType) {
             case kVelocity:
-                return Util.epsilonEquals(this.getEncoder().getVelocity(), this.activePoint().velocity, SparkMaxMotorController.VEL_EPSILON);
+                return Util.epsilonEquals(this.getEncoder().getVelocity(), this.activePoint().velocity, SparkWithMPQueue.VEL_EPSILON);
             case kPosition:
-                return Util.epsilonEquals(this.getEncoder().getPosition(), this.activePoint().position, SparkMaxMotorController.POS_EPSILON);
+                return Util.epsilonEquals(this.getEncoder().getPosition(), this.activePoint().position, SparkWithMPQueue.POS_EPSILON);
             case kDutyCycle:
             case kVoltage:
             case kSmartMotion:
@@ -277,7 +257,7 @@ public class SparkMaxMotorController extends CANSparkMax {
     }
 
     private double getActivePointRefValue() {
-        switch (this.controlMode) {
+        switch (this.controlType) {
             case kVelocity:
                 return this.activePoint().velocity;
             case kPosition:

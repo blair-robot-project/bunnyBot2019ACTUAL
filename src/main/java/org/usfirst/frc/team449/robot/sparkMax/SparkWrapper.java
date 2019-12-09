@@ -50,7 +50,7 @@ public class SparkWrapper extends SmartMotorBase {
      * The SPARK-MAX that this class is a wrapper on
      */
 //	@NotNull
-    protected final SparkMaxMotorController canSpark;
+    protected final SparkWithMPQueue canSpark;
     /**
      * Forward limit switch
      */
@@ -61,7 +61,7 @@ public class SparkWrapper extends SmartMotorBase {
     protected final CANDigitalInput revLimitSwitch;
 
     /**
-     * A cache for the results of querying status using {@link SparkMaxMotorController#getMotionProfileStatus(MotionProfileStatus)}.
+     * A cache for the results of querying status using {@link SparkWithMPQueue#getMotionProfileStatus(MotionProfileStatus)}.
      */
     @NotNull
     private final MotionProfileStatus motionProfileStatus;
@@ -170,7 +170,7 @@ public class SparkWrapper extends SmartMotorBase {
             FPSTalon forwards its port argument to the single-parameter TalonSRX constructor,
             which ORs it with 0x02040000 to obtain a final arb ID.
          */
-        this.canSpark = new SparkMaxMotorController(port, CANSparkMaxLowLevel.MotorType.kBrushless);
+        this.canSpark = new SparkWithMPQueue(port, CANSparkMaxLowLevel.MotorType.kBrushless);
 
         //Set this to false because we only use reverseOutput for slaves.
         this.canSpark.setInverted(reverseOutput);
@@ -198,12 +198,12 @@ public class SparkWrapper extends SmartMotorBase {
         //If given no gear settings, use the default values.
         if (perGearSettings == null || perGearSettings.size() == 0) {
             this.perGearSettings.put(0, new PerGearSettings());
-            this.perGearSettings.get(0).getFeedForwardComponent();
+            this.perGearSettings.get(0).getFeedForwardComponent().setMotorController(this);
         }
         //Otherwise, map the settings to the gear they are.
         else {
             for (final PerGearSettings settings : perGearSettings) {
-                settings.getFeedForwardComponent();
+                settings.getFeedForwardComponent().setMotorController(this);
                 this.perGearSettings.put(settings.getGear(), settings);
             }
         }
@@ -353,7 +353,7 @@ public class SparkWrapper extends SmartMotorBase {
 
         this.setpoint = percentVoltage;
 
-        this.canSpark.set(ControlType.kVoltage, percentVoltage);
+        this.canSpark.setReference(ControlType.kVoltage, percentVoltage);
     }
 
     /**
@@ -530,7 +530,7 @@ public class SparkWrapper extends SmartMotorBase {
         } else {
             this.canSpark.getPIDController().setFF(1023. / 12. / this.nativeSetpoint * this.currentGearSettings.getFeedForwardComponent().applyAsDouble(feet), 0);
             this.canSpark.getPIDController().setReference(this.nativeSetpoint, ControlType.kPosition);
-            this.canSpark.set(ControlType.kPosition, this.nativeSetpoint);
+            this.canSpark.setReference(ControlType.kPosition, this.nativeSetpoint);
         }
     }
 
@@ -567,7 +567,7 @@ public class SparkWrapper extends SmartMotorBase {
         this.nativeSetpoint = this.FPSToEncoder(velocity);
         this.canSpark.getPIDController().setFF(1023. / 12. / this.nativeSetpoint * this.currentGearSettings.getFeedForwardComponent().applyAsDouble(velocity), 0);
         this.setpoint = velocity;
-        this.canSpark.set(ControlType.kVelocity, this.nativeSetpoint);
+        this.canSpark.setReference(ControlType.kVelocity, this.nativeSetpoint);
     }
 
     /**
@@ -607,7 +607,7 @@ public class SparkWrapper extends SmartMotorBase {
         // so I think it's okay to leave it unimplemented for now in case this isn't correct.
         /** Either way, this is the implementation of {@link BaseMotorController#getMotorOutputVoltage()} */
         // This assumes that setpoint is the output voltage percent.
-        return this.getSetpoint() * this.getBatteryVoltage();
+        return this.setpoint * this.getBatteryVoltage();
     }
 
     /**
@@ -634,7 +634,7 @@ public class SparkWrapper extends SmartMotorBase {
      * @return Control mode as a string.
      */
     public String getControlMode() {
-        return String.valueOf(this.canSpark.getControlMode());
+        return String.valueOf(this.canSpark.getControlType());
     }
 
     /**
@@ -756,16 +756,21 @@ public class SparkWrapper extends SmartMotorBase {
      * Starts running the loaded motion profile.
      */
     public void startRunningMP() {
-        this.canSpark.set(ControlType.kSmartMotion, SetValueMotionProfile.Enable.value);
+       // this.canSpark.set(ControlType.kSmartMotion);
     }
 
     @Override
     public void holdPositionMP() {
+        this.canSpark.setReference(ControlType.kPosition, SetValueMotionProfile.Hold.value);
+    }
+
+    @Override
+    public void executeMPPoint(double pos, double vel, double acc) {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * Disables the motorController and loads the given profile into the motorController.
+     * Disables the controller and loads the given profile.
      *
      * @param data The profile to load.
      */
@@ -776,7 +781,6 @@ public class SparkWrapper extends SmartMotorBase {
         this.clearMP();
 
         // TODO: (this code was copied from FPSTalon) This doesn't make sense. Primitives are located on the stack.
-        // TODO: The variable is also never assigned to. What's up with this?
         //Declare this out here to avoid garbage collection
         double feedforward;
 
@@ -837,11 +841,10 @@ public class SparkWrapper extends SmartMotorBase {
             point.isLastPoint = (i + 1) == data.getData().length; // If it's the last point, isLastPoint = true
 
             // Send the point to the Spark's buffer
-            this.canSpark.pushMotionProfileTrajectory(point);
+            this.canSpark.pushMPPoint(point);
         }
         this.executorNotifier.startPeriodic(this.updaterProcessPeriodSecs);
     }
-
 
     /**
      * Get the headers for the data this subsystem logs every loop.
@@ -898,309 +901,4 @@ public class SparkWrapper extends SmartMotorBase {
     public String getLogName() {
         return this.name;
     }
-
-    /**
-     * Does nothing, for there is no separate top-level buffer.
-     *
-     * @see FPSTalon#processMotionProfileBuffer()
-     */
-    protected void processMotionProfileBuffer() {
-        return;
-    }
-
-//    /**
-//     * An object representing the canSpark settings that are different for each gear.
-//     */
-//    protected static class PerGearSettings extends SmartMotorControllerBase.PerGearSettings {
-//
-//        /**
-//         * The gear number this is the settings for.
-//         */
-//        private final int gear;
-//
-//        /**
-//         * The forward and reverse peak output voltages.
-//         */
-//        private final double fwdPeakOutputVoltage, revPeakOutputVoltage;
-//
-//        /**
-//         * The forwards and reverse nominal output voltages.
-//         */
-//        private final double fwdNominalOutputVoltage, revNominalOutputVoltage;
-//
-//        /**
-//         * The ramp rate, in volts/sec. null means no ramp rate.
-//         */
-//        @Nullable
-//        private final Double rampRate;
-//
-//        /**
-//         * The maximum speed of the motor in this gear, in FPS. Used for throttle scaling.
-//         */
-//        @Nullable
-//        private final Double maxSpeed;
-//
-//        /**
-//         * The PID constants for the motor in this gear. Ignored if maxSpeed is null.
-//         */
-//        private final double kP, kI, kD;
-//
-//        /**
-//         * The forwards PID constants for motion profiles in this gear. Ignored if maxSpeed is null.
-//         */
-//        private final double motionProfilePFwd, motionProfileIFwd, motionProfileDFwd;
-//
-//        /**
-//         * The reverse PID constants for motion profiles in this gear. Ignored if maxSpeed is null.
-//         */
-//        private final double motionProfilePRev, motionProfileIRev, motionProfileDRev;
-//
-//        /**
-//         * The component for calculating feedforwards in closed-loop control modes. Ignored if maxSpeed is null.
-//         */
-//        @NotNull
-//        private final FeedForwardComponent feedForwardComponent;
-//
-//        /**
-//         * The maximum velocity for motion magic mode, in FPS. Can be null to not use motion magic.
-//         */
-//        @Nullable
-//        private final Double motionMagicMaxVel;
-//
-//        /**
-//         * The maximum acceleration for motion magic mode, in FPS per second.
-//         */
-//        private final double motionMagicMaxAccel;
-//
-//        /**
-//         * Default constructor.
-//         *
-//         * @param gearNum                 The gear number this is the settings for. Ignored if gear isn't null.
-//         * @param gear                    The gear this is the settings for. Can be null.
-//         * @param fwdPeakOutputVoltage    The peak output voltage for closed-loop modes in the forwards direction, in
-//         *                                volts. Defaults to 12.
-//         * @param revPeakOutputVoltage    The peak output voltage for closed-loop modes in the reverse direction, in
-//         *                                volts. Defaults to -fwdPeakOutputVoltage.
-//         * @param fwdNominalOutputVoltage The minimum output voltage for closed-loop modes in the forwards direction.
-//         *                                This does not rescale, it just sets any output below this voltage to this
-//         *                                voltage. Defaults to 0.
-//         * @param revNominalOutputVoltage The minimum output voltage for closed-loop modes in the reverse direction.
-//         *                                This does not rescale, it just sets any output below this voltage to this
-//         *                                voltage. Defaults to -fwdNominalOutputVoltage.
-//         * @param rampRate                The ramp rate, in volts/sec. Can be null, and if it is, no ramp rate is used.
-//         * @param maxSpeed                The maximum speed of the motor in this gear, in FPS. Used for throttle
-//         *                                scaling. Ignored if kVFwd is null. Calculated from the drive characterization
-//         *                                terms if null.
-//         * @param kP                      The proportional PID constant for the motor in this gear. Ignored if kVFwd is
-//         *                                null. Defaults to 0.
-//         * @param kI                      The integral PID constant for the motor in this gear. Ignored if kVFwd is
-//         *                                null. Defaults to 0.
-//         * @param kD                      The derivative PID constant for the motor in this gear. Ignored if kVFwd is
-//         *                                null. Defaults to 0.
-//         * @param motionProfilePFwd       The proportional PID constant for forwards motion profiles in this gear.
-//         *                                Ignored if kVFwd is null. Defaults to 0.
-//         * @param motionProfileIFwd       The integral PID constant for forwards motion profiles in this gear. Ignored
-//         *                                if kVFwd is null. Defaults to 0.
-//         * @param motionProfileDFwd       The derivative PID constant for forwards motion profiles in this gear. Ignored
-//         *                                if kVFwd is null. Defaults to 0.
-//         * @param motionProfilePRev       The proportional PID constant for reverse motion profiles in this gear.
-//         *                                Ignored if kVFwd is null. Defaults to motionProfilePFwd.
-//         * @param motionProfileIRev       The integral PID constant for reverse motion profiles in this gear. Ignored if
-//         *                                kVFwd is null. Defaults to motionProfileIFwd.
-//         * @param motionProfileDRev       The derivative PID constant for reverse motion profiles in this gear. Ignored
-//         *                                if kVFwd is null. Defaults to motionProfileDFwd.
-//         * @param feedForwardComponent    The component for calculating feedforwards in closed-loop control modes.
-//         *                                Ignored if maxSpeed is null. Defaults to no feedforward.
-//         * @param motionMagicMaxVel       The maximum velocity for motion magic mode, in FPS. Can be null to not use
-//         *                                motion magic.
-//         * @param motionMagicMaxAccel     The maximum acceleration for motion magic mode, in FPS per second.
-//         */
-//        @JsonCreator
-//        public PerGearSettings(final int gearNum,
-//                               @Nullable final Shiftable.gear gear,
-//                               @Nullable final Double fwdPeakOutputVoltage,
-//                               @Nullable final Double revPeakOutputVoltage,
-//                               @Nullable final Double fwdNominalOutputVoltage,
-//                               @Nullable final Double revNominalOutputVoltage,
-//                               @Nullable final Double rampRate,
-//                               @Nullable final Double maxSpeed,
-//                               final double kP,
-//                               final double kI,
-//                               final double kD,
-//                               final double motionProfilePFwd,
-//                               final double motionProfileIFwd,
-//                               final double motionProfileDFwd,
-//                               @Nullable final Double motionProfilePRev,
-//                               @Nullable final Double motionProfileIRev,
-//                               @Nullable final Double motionProfileDRev,
-//                               @Nullable final FeedForwardComponent feedForwardComponent,
-//                               @Nullable final Double motionMagicMaxVel,
-//                               final double motionMagicMaxAccel) {
-//            this.gear = gear != null ? gear.getNumVal() : gearNum;
-//            this.fwdPeakOutputVoltage = fwdPeakOutputVoltage != null ? fwdPeakOutputVoltage : 12;
-//            this.revPeakOutputVoltage = revPeakOutputVoltage != null ? revPeakOutputVoltage : -this.fwdPeakOutputVoltage;
-//            this.fwdNominalOutputVoltage = fwdNominalOutputVoltage != null ? fwdNominalOutputVoltage : 0;
-//            this.revNominalOutputVoltage = revNominalOutputVoltage != null ? revNominalOutputVoltage : -this.fwdNominalOutputVoltage;
-//            this.rampRate = rampRate;
-//            this.kP = kP;
-//            this.kI = kI;
-//            this.kD = kD;
-//            this.motionProfilePFwd = motionProfilePFwd;
-//            this.motionProfileIFwd = motionProfileIFwd;
-//            this.motionProfileDFwd = motionProfileDFwd;
-//            this.motionProfilePRev = motionProfilePRev != null ? motionProfilePRev : this.motionProfilePFwd;
-//            this.motionProfileIRev = motionProfileIRev != null ? motionProfileIRev : this.motionProfileIFwd;
-//            this.motionProfileDRev = motionProfileDRev != null ? motionProfileDRev : this.motionProfileDFwd;
-//            this.feedForwardComponent = feedForwardComponent != null ? feedForwardComponent : FeedForwardComponent.getZeroFeedForward();
-//            this.maxSpeed = maxSpeed;
-//            this.motionMagicMaxVel = motionMagicMaxVel;
-//            this.motionMagicMaxAccel = motionMagicMaxAccel;
-//        }
-//
-//        /**
-//         * Empty constructor that uses all default options.
-//         */
-//        public PerGearSettings() {
-//            this(0, null, null, null, null, null, null, null, 0, 0, 0, 0, 0, 0, null, null, null, null, null, 0);
-//        }
-//
-//        /**
-//         * @return The gear number this is the settings for.
-//         */
-//        public int getGear() {
-//            return this.gear;
-//        }
-//
-//        /**
-//         * @return The peak output voltage for closed-loop modes in the forwards direction, in volts.
-//         */
-//        public double getFwdPeakOutputVoltage() {
-//            return this.fwdPeakOutputVoltage;
-//        }
-//
-//        /**
-//         * @return The peak output voltage for closed-loop modes in the reverse direction, in volts.
-//         */
-//        public double getRevPeakOutputVoltage() {
-//            return this.revPeakOutputVoltage;
-//        }
-//
-//        /**
-//         * @return The minimum output voltage for closed-loop modes in the forwards direction. This does not rescale, it
-//         * just sets any output below this voltage to this voltage.
-//         */
-//        public double getFwdNominalOutputVoltage() {
-//            return this.fwdNominalOutputVoltage;
-//        }
-//
-//        /**
-//         * @return The minimum output voltage for closed-loop modes in the reverse direction. This does not rescale, it
-//         * just sets any output below this voltage to this voltage.
-//         */
-//        public double getRevNominalOutputVoltage() {
-//            return this.revNominalOutputVoltage;
-//        }
-//
-//        /**
-//         * @return The ramp rate, in volts/sec.
-//         */
-//        @Nullable
-//        public Double getRampRate() {
-//            return this.rampRate;
-//        }
-//
-//        /**
-//         * @return The maximum speed of the motor in this gear, in FPS.
-//         */
-//        @Nullable
-//        public Double getMaxSpeed() {
-//            return this.maxSpeed;
-//        }
-//
-//        /**
-//         * @return The proportional PID constant for the motor in this gear.
-//         */
-//        public double getkP() {
-//            return this.kP;
-//        }
-//
-//        /**
-//         * @return The integral PID constant for the motor in this gear.
-//         */
-//        public double getkI() {
-//            return this.kI;
-//        }
-//
-//        /**
-//         * @return The derivative PID constant for the motor in this gear.
-//         */
-//        public double getkD() {
-//            return this.kD;
-//        }
-//
-//        /**
-//         * @return The proportional PID constant for motion profiles in this gear.
-//         */
-//        public double getMotionProfilePFwd() {
-//            return this.motionProfilePFwd;
-//        }
-//
-//        /**
-//         * @return The integral PID constant for motion profiles in this gear.
-//         */
-//        public double getMotionProfileIFwd() {
-//            return this.motionProfileIFwd;
-//        }
-//
-//        /**
-//         * @return The derivative PID constant for motion profiles in this gear.
-//         */
-//        public double getMotionProfileDFwd() {
-//            return this.motionProfileDFwd;
-//        }
-//
-//        /**
-//         * @return The proportional PID constant for reverse motion profiles in this gear.
-//         */
-//        public double getMotionProfilePRev() {
-//            return this.motionProfilePRev;
-//        }
-//
-//        /**
-//         * @return The integral PID constant for reverse motion profiles in this gear.
-//         */
-//        public double getMotionProfileIRev() {
-//            return this.motionProfileIRev;
-//        }
-//
-//        /**
-//         * @return The derivative PID constant for reverse motion profiles in this gear.
-//         */
-//        public double getMotionProfileDRev() {
-//            return this.motionProfileDRev;
-//        }
-//
-//        /**
-//         * @return The component for calculating feedforwards in closed-loop control modes.
-//         */
-//        @NotNull
-//        public FeedForwardComponent getFeedForwardComponent() {
-//            return this.feedForwardComponent;
-//        }
-//
-//        /**
-//         * @return The maximum velocity for motion magic mode, in FPS. Can be null to not use motion magic.
-//         */
-//        @Nullable
-//        public Double getMotionMagicMaxVel() {
-//            return this.motionMagicMaxVel;
-//        }
-//
-//        /**
-//         * @return The maximum acceleration for motion magic mode, in FPS per second.
-//         */
-//        public double getMotionMagicMaxAccel() {
-//            return this.motionMagicMaxAccel;
-//        }
-//    }
 }

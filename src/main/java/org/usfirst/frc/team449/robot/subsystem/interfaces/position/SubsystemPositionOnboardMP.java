@@ -7,9 +7,9 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import org.jetbrains.annotations.NotNull;
 import org.usfirst.frc.team449.robot.components.PathGenerator;
+import org.usfirst.frc.team449.robot.generalInterfaces.smartMotor.SmartMotor;
 import org.usfirst.frc.team449.robot.generalInterfaces.updatable.Updatable;
 import org.usfirst.frc.team449.robot.other.MotionProfileData;
-import org.usfirst.frc.team449.robot.sparkMax.SmartMotorControllerBase;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.SubsystemMP;
 
 /**
@@ -21,7 +21,7 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
     /**
      * The motor controller this subsystem controls.
      */
-    protected final SmartMotorControllerBase motorController;
+    protected final SmartMotor motorController;
 
     /**
      * The object for generating the paths for the motor to run.
@@ -47,7 +47,7 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
      * @param pathGenerator The object for generating the paths for the motor to run.
      */
     @JsonCreator
-    public SubsystemPositionOnboardMP(@NotNull @JsonProperty(required = true) SmartMotorControllerBase motorController,
+    public SubsystemPositionOnboardMP(@NotNull @JsonProperty(required = true) SmartMotor motorController,
                                       @NotNull @JsonProperty(required = true) PathGenerator pathGenerator) {
         this.motorController = motorController;
         this.pathGenerator = pathGenerator;
