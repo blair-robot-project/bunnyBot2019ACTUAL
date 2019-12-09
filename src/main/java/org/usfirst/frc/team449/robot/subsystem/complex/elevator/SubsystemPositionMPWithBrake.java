@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import org.usfirst.frc.team449.robot.components.PathGenerator;
 import org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon;
 import org.usfirst.frc.team449.robot.jacksonWrappers.MappedDoubleSolenoid;
+import org.usfirst.frc.team449.robot.sparkMax.SmartMotorController;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.position.SubsystemPositionOnboardMP;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.SubsystemSolenoid;
 
@@ -38,18 +39,18 @@ public class SubsystemPositionMPWithBrake extends SubsystemPositionOnboardMP imp
     /**
      * Default constructor.
      *
-     * @param talon                The Talon SRX this subsystem controls.
+     * @param motorController                The Talon SRX this subsystem controls.
      * @param pathGenerator        The object for generating the paths for the Talon to run.
      * @param piston               The piston for the brake.
      * @param brakeReleasePosition The position of the piston for the brake when it's allowing the elevator to move.
      *                             Defaults to {@link DoubleSolenoid.Value#kReverse}.
      */
     @JsonCreator
-    public SubsystemPositionMPWithBrake(@JsonProperty(required = true) @NotNull FPSTalon talon,
+    public SubsystemPositionMPWithBrake(@JsonProperty(required = true) @NotNull SmartMotorController motorController,
                                         @JsonProperty(required = true) @NotNull PathGenerator pathGenerator,
                                         @JsonProperty(required = true) @NotNull MappedDoubleSolenoid piston,
                                         @Nullable DoubleSolenoid.Value brakeReleasePosition) {
-        super(talon, pathGenerator);
+        super(motorController, pathGenerator);
         this.piston = piston;
         pistonPos = DoubleSolenoid.Value.kOff;
         this.brakeReleasePosition = brakeReleasePosition != null ? brakeReleasePosition : DoubleSolenoid.Value.kReverse;
@@ -82,7 +83,7 @@ public class SubsystemPositionMPWithBrake extends SubsystemPositionOnboardMP imp
     public void periodic() {
         //Start the profile if it's ready
         if (!shouldStartProfile && readyToRunProfile()) {
-            talon.startRunningMP();
+            motorController.startRunningMP();
             setSolenoid(brakeReleasePosition);
             shouldStartProfile = true;
         }

@@ -2,23 +2,22 @@ package org.usfirst.frc.team449.robot.drive.unidirectional;
 
 import com.fasterxml.jackson.annotation.*;
 import com.team254.lib.util.motion.MotionState;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.usfirst.frc.team449.robot.generalInterfaces.loggable.Loggable;
-import org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon;
 import org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS;
 import org.usfirst.frc.team449.robot.other.Logger;
 import org.usfirst.frc.team449.robot.other.MotionProfileData;
+import org.usfirst.frc.team449.robot.sparkMax.SmartMotorController;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.AHRS.SubsystemAHRS;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.TwoSideMPSubsystem.SubsystemMPTwoSides;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.TwoSideMPSubsystem.manual.SubsystemMPManualTwoSides;
 
 
 /**
- * A drive with a cluster of any number of CANTalonSRX controlled motors on each side.
+ * A drive with a cluster of any number of CANTalonSRX or CANSpark controlled motors on each side.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "@class")
 @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
@@ -26,16 +25,16 @@ public class DriveUnidirectionalWithGyro extends Subsystem implements SubsystemA
         Loggable, SubsystemMPTwoSides, SubsystemMPManualTwoSides{
 
     /**
-     * Right master Talon
+     * Right master SmartMotorController
      */
     @NotNull
-    protected final FPSTalon rightMaster;
+    protected final SmartMotorController rightMaster;
 
     /**
-     * Left master Talon
+     * Left master SmartMotorController
      */
     @NotNull
-    protected final FPSTalon leftMaster;
+    protected final SmartMotorController leftMaster;
 
     /**
      * The NavX gyro
@@ -57,13 +56,13 @@ public class DriveUnidirectionalWithGyro extends Subsystem implements SubsystemA
     /**
      * Default constructor.
      *
-     * @param leftMaster  The master talon on the left side of the drive.
-     * @param rightMaster The master talon on the right side of the drive.
+     * @param leftMaster  The master motorController on the left side of the drive.
+     * @param rightMaster The master motorController on the right side of the drive.
      * @param ahrs        The NavX gyro for calculating this drive's heading and angular velocity.
      */
     @JsonCreator
-    public DriveUnidirectionalWithGyro(@NotNull @JsonProperty(required = true) FPSTalon leftMaster,
-                                       @NotNull @JsonProperty(required = true) FPSTalon rightMaster,
+    public DriveUnidirectionalWithGyro(@NotNull @JsonProperty(required = true) SmartMotorController leftMaster,
+                                       @NotNull @JsonProperty(required = true) SmartMotorController rightMaster,
                                        @NotNull @JsonProperty(required = true) MappedAHRS ahrs) {
         super();
         //Initialize stuff

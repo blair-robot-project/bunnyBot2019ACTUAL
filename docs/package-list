@@ -1,0 +1,15 @@
+com.team254.lib.util
+com.team254.lib.util.math
+com.team254.lib.util.motion
+edu.wpi.first.wpilibj.command
+org.usfirst.frc.team449.robot
+org.usfirst.frc.team449.robot.commands.general
+org.usfirst.frc.team449.robot.commands.multiInterface
+org.usfirst.frc.team449.robot.components
+org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.feedForwardComponent
+org.usfirst.frc.team449.robot.generalInterfaces.poseCommand
+org.usfirst.frc.team449.robot.subsystem.complex.elevator
+org.usfirst.frc.team449.robot.subsystem.complex.intake
+org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.TwoSideMPSubsystem.commands
+org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.commands
+org.usfirst.frc.team449.robot.subsystem.interfaces.position

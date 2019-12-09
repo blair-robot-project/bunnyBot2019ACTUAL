@@ -9,8 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.revrobotics.*;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.Notifier;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +18,7 @@ import org.usfirst.frc.team449.robot.generalInterfaces.loggable.Loggable;
 import org.usfirst.frc.team449.robot.generalInterfaces.shiftable.Shiftable;
 import org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.SimpleMotor;
 import org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon;
+import org.usfirst.frc.team449.robot.jacksonWrappers.PDP;
 import org.usfirst.frc.team449.robot.other.Clock;
 import org.usfirst.frc.team449.robot.other.Logger;
 import org.usfirst.frc.team449.robot.other.MotionProfileData;
@@ -37,11 +36,11 @@ import java.util.Map;
  * @see FPSTalon
  */
 @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
-public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor, Shiftable, Loggable {
+public class SparkWrapper extends SmartMotorControllerBase implements SmartMotorController, SimpleMotor, Shiftable, Loggable {
     /**
      * test out how many PWM cycles it should go on after
      * overcurrent, or not at all. Putting it at 0 because
-     * the talon's peak current limit had a timeout of 0 ms
+     * the motorController's peak current limit had a timeout of 0 ms
      */
     private static final int chopCycles = 0;
 
@@ -81,7 +80,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
      * Default constructor.
      *
      * @param port                       CAN port of this Spark.
-     * @param name                       The talon's name, used for logging purposes. Defaults to talon_portnum
+     * @param name                       The motorController's name, used for logging purposes. Defaults to talon_portnum
      * @param reverseOutput              Whether to reverse the output.
      * @param enableBrakeMode            Whether to brake or coast when stopped.
      * @param voltagePerCurrentLinReg    The component for doing linear regression to find the resistance.
@@ -128,7 +127,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
                         final boolean reverseOutput,
                         @JsonProperty(required = true) final boolean enableBrakeMode,
                         @NotNull @JsonProperty(required = true) final RunningLinRegComponent voltagePerCurrentLinReg,
-                        @NotNull @JsonProperty(required = true) final org.usfirst.frc.team449.robot.jacksonWrappers.PDP PDP,
+                        @NotNull @JsonProperty(required = true) final PDP PDP,
                         @Nullable final Boolean fwdLimitSwitchNormallyOpen,
                         @Nullable final Boolean revLimitSwitchNormallyOpen,
                         @Nullable final Double fwdSoftLimit,
@@ -263,7 +262,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
             //todo check if only encoders or analogs are also used
             /*if (feedbackDevice.equals(FeedbackDevice.CTRE_MagEncoder_Absolute) ||
                     feedbackDevice.equals(FeedbackDevice.CTRE_MagEncoder_Relative)) {
-                talon.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+                motorController.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
             } else {
                 canSpark.configSelectedFeedbackSensor(feedbackDevice, 0, 0);
             }*/
@@ -285,7 +284,8 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
                 this.canSpark.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
             }
         } else {
-            this.encoder = new CANEncoder(this.canSpark, EncoderType.kNoSensor, encoderCPR);
+            // This assumes that the kNoSensor causes the cpr to be ignored.
+            this.encoder = new CANEncoder(this.canSpark, EncoderType.kNoSensor, 0);
         }
         this.canSpark.getPIDController().setFeedbackDevice(this.encoder);
 
@@ -305,7 +305,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
         }
 
         //Enable or disable voltage comp
-        this.canSpark.enableVoltageCompensation(enableVoltageComp ? CANMotorControllerBase.voltageCompensation : 0);
+        this.canSpark.enableVoltageCompensation(enableVoltageComp ? voltageCompensation : 0);
 
         // TODO: Don't think this is possible.
         // canSpark.configVoltageMeasurementFilter(voltageCompSamples != null ? voltageCompSamples : 32, 0);
@@ -316,6 +316,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
         // TODO: I don't think Spark supports differential control, either.
         // canSpark.selectProfileSlot(0, 0);
 
+        // TODO: Slaves are not implemented
 		/* I doubt these will be used
 		if (slaveTalons != null) {
 			//Set up slaves.
@@ -376,7 +377,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
         //  and min reverse output.
         //  Also, they recommend using the SPARK MAX GUI
         this.canSpark.getPIDController().setOutputRange(this.currentGearSettings.getRevPeakOutputVoltage() / 12., this.currentGearSettings.getFwdPeakOutputVoltage() / 12.);
-        /*talon.configPeakOutputForward(currentGearSettings.getFwdPeakOutputVoltage() / 12., 0);
+        /*motorController.configPeakOutputForward(currentGearSettings.getFwdPeakOutputVoltage() / 12., 0);
         canSpark.configPeakOutputReverse(currentGearSettings.getRevPeakOutputVoltage() / 12., 0);*/
 
         //Set min voltage
@@ -443,7 +444,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
     }
 
     /**
-     * Converts the velocity read by the talon's getVelocity() method to the FPS of the output shaft. Note this DOES
+     * Converts the velocity read by the motorController's getVelocity() method to the FPS of the output shaft. Note this DOES
      * account for post-encoder gearing.
      *
      * @param encoderReading The velocity read from the encoder with no conversions.
@@ -460,7 +461,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
     }
 
     /**
-     * Converts from the velocity of the output shaft to what the talon's getVelocity() method would read at that
+     * Converts from the velocity of the output shaft to what the motorController's getVelocity() method would read at that
      * velocity. Note this DOES account for post-encoder gearing.
      *
      * @param FPS The velocity of the output shaft, in FPS.
@@ -672,7 +673,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
     }
 
     /**
-     * @return the position of the talon in feet, or null if inches per rotation wasn't given.
+     * @return the position of the motorController in feet, or null if inches per rotation wasn't given.
      */
     public Double getPositionFeet() {
         return this.encoderToFeet(this.encoder.getPosition());
@@ -719,7 +720,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
     }
 
     /**
-     * Whether this talon is ready to start running a profile.
+     * Whether this motorController is ready to start running a profile.
      *
      * @return True if minNumPointsInBottomBuffer points have been loaded or the top buffer is empty, false otherwise.
      */
@@ -729,9 +730,9 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
     }
 
     /**
-     * Whether this talon has finished running a profile.
+     * Whether this motorController has finished running a profile.
      *
-     * @return True if the active point in the talon is the last point, false otherwise.
+     * @return True if the active point in the motorController is the last point, false otherwise.
      */
     public boolean MPIsFinished() {
         this.updateMotionProfileStatus();
@@ -750,11 +751,16 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
      * Starts running the loaded motion profile.
      */
     public void startRunningMP() {
-        canSpark.set(ControlType.kSmartMotion, SetValueMotionProfile.Enable.value);
+        this.canSpark.set(ControlType.kSmartMotion, SetValueMotionProfile.Enable.value);
+    }
+
+    @Override
+    public void holdPositionMP() {
+        throw new UnsupportedOperationException();
     }
 
     /**
-     * Disables the talon and loads the given profile into the talon.
+     * Disables the motorController and loads the given profile into the motorController.
      *
      * @param data The profile to load.
      */
@@ -804,7 +810,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
         for (int i = 0; i < data.getData().length; ++i) {
             final TrajectoryPoint point = new TrajectoryPoint();
             //Have to set this so the Spark doesn't throw a null pointer. May be fixed in a future release.
-            point.timeDur = data.getPointTimeMillis();
+            point.timeDur = 0;
 
             //Set parameters that are true for all points
             point.profileSlotSelect0 = 1;        // gain selection, we always put MP gains in slot 1.
@@ -900,7 +906,7 @@ public class SparkWrapper extends CANMotorControllerBase implements SimpleMotor,
     /**
      * An object representing the canSpark settings that are different for each gear.
      */
-    protected static class PerGearSettings extends CANMotorControllerBase.PerGearSettings {
+    protected static class PerGearSettings extends SmartMotorControllerBase.PerGearSettings {
 
         /**
          * The gear number this is the settings for.

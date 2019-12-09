@@ -2,7 +2,7 @@ package org.usfirst.frc.team449.robot.generalInterfaces.doubleUnaryOperator.feed
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.jetbrains.annotations.NotNull;
-import org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon;
+import org.usfirst.frc.team449.robot.sparkMax.SmartMotorController;
 
 import java.util.function.DoubleUnaryOperator;
 
@@ -14,9 +14,9 @@ import java.util.function.DoubleUnaryOperator;
 public abstract class FeedForwardComponent implements DoubleUnaryOperator {
 
     /**
-     * The talon this controls the feedforward for.
+     * The motorController this controls the feedforward for.
      */
-    protected FPSTalon talon;
+    protected SmartMotorController motorController;
 
     /**
      * Get a FeedForwardComponent that gives no feedforward.
@@ -29,13 +29,13 @@ public abstract class FeedForwardComponent implements DoubleUnaryOperator {
     }
 
     /**
-     * Set the talon to get information from. This is a setter instead of being in the constructor to avoid circular
+     * Set the motorController to get information from. This is a setter instead of being in the constructor to avoid circular
      * referencing.
      *
-     * @param talon The talon this controls the feedforward for.
+     * @param motorController The motorController this controls the feedforward for.
      */
-    public void setTalon(@NotNull FPSTalon talon) {
-        this.talon = talon;
+    public void setMotorController(@NotNull SmartMotorController motorController) {
+        this.motorController = motorController;
     }
 
     /**

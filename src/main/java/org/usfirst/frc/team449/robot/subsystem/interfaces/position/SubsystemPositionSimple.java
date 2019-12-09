@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import org.jetbrains.annotations.NotNull;
 import org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon;
+import org.usfirst.frc.team449.robot.sparkMax.SmartMotorController;
 
 /**
  * A simple SubsystemPosition that uses a {@link FPSTalon}.
@@ -18,7 +19,7 @@ public class SubsystemPositionSimple extends Subsystem implements SubsystemPosit
      * Motor that controls the subsystem
      */
     @NotNull
-    private final FPSTalon motor;
+    private final SmartMotorController motor;
 
     /**
      * How close the motor has to be to the setpoint to be considered on target, in feet.
@@ -28,13 +29,13 @@ public class SubsystemPositionSimple extends Subsystem implements SubsystemPosit
     /**
      * Default constructor.
      *
-     * @param talon             The motor changing the position
+     * @param motorController             The motor changing the position
      * @param onTargetTolerance How close the motor has to be to the setpoint to be considered on target, in feet.
      */
     @JsonCreator
-    public SubsystemPositionSimple(@NotNull @JsonProperty(required = true) FPSTalon talon,
+    public SubsystemPositionSimple(@NotNull @JsonProperty(required = true) SmartMotorController motorController,
                                    @JsonProperty(required = true) double onTargetTolerance) {
-        this.motor = talon;
+        this.motor = motorController;
         this.onTargetTolerance = onTargetTolerance;
     }
 

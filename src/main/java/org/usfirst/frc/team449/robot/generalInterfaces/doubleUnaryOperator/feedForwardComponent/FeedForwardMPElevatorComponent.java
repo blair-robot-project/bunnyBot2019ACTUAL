@@ -26,7 +26,7 @@ public class FeedForwardMPElevatorComponent extends FeedForwardComponent {
     private final FeedForwardComponent[] feedForwardComponents;
 
     /**
-     * The current talon position. Field to avoid garbage collection.
+     * The current motorController position. Field to avoid garbage collection.
      */
     private double pos;
 
@@ -76,7 +76,7 @@ public class FeedForwardMPElevatorComponent extends FeedForwardComponent {
      */
     @Override
     public double applyAsDouble(double operand) {
-        pos = talon.getPositionFeet();
+        pos = motorController.getPositionFeet();
         //Find the appropriate component
         for (int i = 0; i < positions.length; i++) {
             if (pos <= positions[i]) {

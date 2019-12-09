@@ -23,7 +23,7 @@ public class MotionProfileData {
     private final boolean backwards;
 
     /**
-     * Whether or not to reset the talon position when this profile starts.
+     * Whether or not to reset the motorController position when this profile starts.
      */
     private final boolean resetPosition;
 
@@ -51,7 +51,7 @@ public class MotionProfileData {
      * @param inverted      Whether or not the profile is backwards (would be backwards if we're driving it backwards)
      * @param velocityOnly  Whether or not to only use velocity feed-forward. Used for tuning kV and kA. Defaults to
      *                      false.
-     * @param resetPosition Whether or not to reset the talon position when this profile starts. Defaults to false.
+     * @param resetPosition Whether or not to reset the motorController position when this profile starts. Defaults to false.
      */
     @JsonCreator
     public MotionProfileData(@NotNull @JsonProperty(required = true) String filename,
@@ -80,7 +80,7 @@ public class MotionProfileData {
      * @param inverted      Whether or not the profile is backwards (would be backwards if we're driving it backwards)
      * @param velocityOnly  Whether or not to only use velocity feed-forward. Used for tuning kV and kA. Defaults to
      *                      false.
-     * @param resetPosition Whether or not to reset the talon position when this profile starts.
+     * @param resetPosition Whether or not to reset the motorController position when this profile starts.
      */
     public MotionProfileData(@NotNull double[] pos, @NotNull double[] vel, @NotNull double[] accel,
                              double deltaTime, boolean inverted, boolean velocityOnly, boolean resetPosition) {
@@ -109,7 +109,7 @@ public class MotionProfileData {
      * @param inverted      Whether or not the profile is backwards (would be backwards if we're driving it backwards)
      * @param velocityOnly  Whether or not to only use velocity feed-forward. Used for tuning kV and kA. Defaults to
      *                      false.
-     * @param resetPosition Whether or not to reset the talon position when this profile starts.
+     * @param resetPosition Whether or not to reset the motorController position when this profile starts.
      */
     public MotionProfileData(@NotNull List<Double> pos, @NotNull List<Double> vel, @NotNull List<Double> accel,
                              double deltaTime, boolean inverted, boolean velocityOnly, boolean resetPosition) {
@@ -202,7 +202,7 @@ public class MotionProfileData {
     }
 
     /**
-     * @return Whether or not to reset the talon position when this profile starts.
+     * @return Whether or not to reset the motorController position when this profile starts.
      */
     public boolean resetPosition() {
         return resetPosition;
