@@ -1,33 +1,21 @@
-package org.usfirst.frc.team449.robot.sparkMax;
+package org.usfirst.frc.team449.robot.generalInterfaces.smartMotor;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.usfirst.frc.team449.robot.generalInterfaces.loggable.Loggable;
 import org.usfirst.frc.team449.robot.generalInterfaces.shiftable.Shiftable;
 import org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.SimpleMotor;
 import org.usfirst.frc.team449.robot.other.MotionProfileData;
 
-public interface SmartMotorController extends SimpleMotor, Shiftable, Loggable {
+/**
+ * A motor with motion profile control and shifting.
+ */
+public interface SmartMotor extends SimpleMotor, Shiftable, Loggable {
     /**
      * Set the motor output voltage to a given percent of available voltage.
      *
      * @param percentVoltage percent of total voltage from [-1, 1]
      */
     void setPercentVoltage(double percentVoltage);
-
-    /**
-     * @return The gear this subsystem is currently in.
-     */
-    @Override
-    int getGear();
-
-    /**
-     * Shift to a specific gear.
-     *
-     * @param gear Which gear to shift to.
-     */
-    @Override
-    void setGear(int gear);
 
     /**
      * Set a position setpoint for the Talon.
@@ -42,14 +30,6 @@ public interface SmartMotorController extends SimpleMotor, Shiftable, Loggable {
      * @return The CANTalon's velocity in FPS, or null if no encoder CPR was given.
      */
     @Nullable Double getVelocity();
-
-    /**
-     * Set the velocity for the motor to go at.
-     *
-     * @param velocity the desired velocity, on [-1, 1].
-     */
-    @Override
-    void setVelocity(double velocity);
 
     /**
      * Get the current closed-loop velocity error in FPS. WARNING: will give garbage if not in velocity mode.
@@ -92,18 +72,6 @@ public interface SmartMotorController extends SimpleMotor, Shiftable, Loggable {
      * @return Control mode as a string.
      */
     String getControlMode();
-
-    /**
-     * Enables the motor, if applicable.
-     */
-    @Override
-    void enable();
-
-    /**
-     * Disables the motor, if applicable.
-     */
-    @Override
-    void disable();
 
     /**
      * Set the velocity scaled to a given gear's max velocity. Used mostly when autoshifting.
@@ -175,32 +143,4 @@ public interface SmartMotorController extends SimpleMotor, Shiftable, Loggable {
      * @param data The profile to load.
      */
     void loadProfile(MotionProfileData data);
-
-    /**
-     * Get the headers for the data this subsystem logs every loop.
-     *
-     * @return An N-length array of String labels for data, where N is the length of the Object[] returned by getData().
-     */
-    @NotNull
-    @Override
-    String[] getHeader();
-
-    /**
-     * Get the data this subsystem logs every loop.
-     *
-     * @return An N-length array of Objects, where N is the number of labels given by getHeader.
-     */
-    @NotNull
-    @Override
-    Object[] getData();
-
-    /**
-     * Get the name of this object.
-     *
-     * @return A string that will identify this object in the log file.
-     */
-    @NotNull
-    @Override
-    String getLogName();
-
 }
