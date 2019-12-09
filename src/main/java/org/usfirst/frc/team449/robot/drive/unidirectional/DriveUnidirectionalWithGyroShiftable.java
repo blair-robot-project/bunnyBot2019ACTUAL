@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.usfirst.frc.team449.robot.components.ShiftComponent;
 import org.usfirst.frc.team449.robot.drive.shifting.DriveShiftable;
 import org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS;
-import org.usfirst.frc.team449.robot.sparkMax.SmartMotorController;
+import org.usfirst.frc.team449.robot.sparkMax.SmartMotorControllerBase;
 
 
 /**
@@ -39,8 +39,8 @@ public class DriveUnidirectionalWithGyroShiftable extends DriveUnidirectionalWit
      * @param startingOverrideAutoshift Whether to start with autoshift disabled. Defaults to false.
      */
     @JsonCreator
-    public DriveUnidirectionalWithGyroShiftable(@NotNull @JsonProperty(required = true) SmartMotorController leftMaster,
-                                                @NotNull @JsonProperty(required = true) SmartMotorController rightMaster,
+    public DriveUnidirectionalWithGyroShiftable(@NotNull @JsonProperty(required = true) SmartMotorControllerBase leftMaster,
+                                                @NotNull @JsonProperty(required = true) SmartMotorControllerBase rightMaster,
                                                 @NotNull @JsonProperty(required = true) MappedAHRS ahrs,
                                                 @NotNull @JsonProperty(required = true) ShiftComponent shiftComponent,
                                                 boolean startingOverrideAutoshift) {
