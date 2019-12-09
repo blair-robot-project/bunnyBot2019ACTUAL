@@ -78,9 +78,8 @@ public class GoToPosition<T extends Subsystem & SubsystemMPTwoSides & SubsystemA
         this.theta = theta;
         this.poseEstimator = poseEstimator;
         this.subsystem = subsystem;
-        GetPathFromJetson getPath = new GetPathFromJetson(pathRequester, null, null,
-                null, deltaTime, maxVel, maxAccel, maxJerk, false);
-        GoToPositionRelative goToPositionRelative = new GoToPositionRelative<>(getPath, subsystem);
+        GetPathFromJetson getPath = new GetPathFromJetson(pathRequester, null, deltaTime, maxVel, maxAccel, maxJerk, false);
+        GoToPositionRelative<@NotNull T> goToPositionRelative = new GoToPositionRelative<>(getPath, subsystem);
         goToPositionRelative.setDestination(this::getX, this::getY, this::getTheta);
         addSequential(goToPositionRelative);
     }

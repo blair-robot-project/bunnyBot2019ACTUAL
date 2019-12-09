@@ -194,12 +194,12 @@ public class FPSTalon extends SmartMotorBase implements SmartMotor, SimpleMotor,
         //If given no gear settings, use the default values.
         if (perGearSettings == null || perGearSettings.size() == 0) {
             this.perGearSettings.put(0, new PerGearSettings());
-            this.perGearSettings.get(0).getFeedForwardComponent().setTalon(this);
+            this.perGearSettings.get(0).getFeedForwardComponent().setMotorController(this);
         }
         //Otherwise, map the settings to the gear they are.
         else {
             for (PerGearSettings settings : perGearSettings) {
-                settings.getFeedForwardComponent().setTalon(this);
+                settings.getFeedForwardComponent().setMotorController(this);
                 this.perGearSettings.put(settings.getGear(), settings);
             }
         }
