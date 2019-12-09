@@ -8,8 +8,8 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import org.jetbrains.annotations.NotNull;
 import org.usfirst.frc.team449.robot.components.PathGenerator;
 import org.usfirst.frc.team449.robot.generalInterfaces.updatable.Updatable;
-import org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon;
 import org.usfirst.frc.team449.robot.other.MotionProfileData;
+import org.usfirst.frc.team449.robot.sparkMax.SmartMotorController;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.SubsystemMP;
 
 /**
@@ -19,37 +19,37 @@ import org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.Subsyste
 public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPosition, Updatable, SubsystemMP {
 
     /**
-     * The Talon SRX this subsystem controls.
+     * The motor controller this subsystem controls.
      */
-    protected final FPSTalon talon;
+    protected final SmartMotorController motorController;
 
     /**
-     * The object for generating the paths for the Talon to run.
+     * The object for generating the paths for the motor to run.
      */
     private final PathGenerator pathGenerator;
     /**
-     * Whether or not to start running the profile loaded into the Talon.
+     * Whether or not to start running the profile loaded into the motor controller.
      */
     protected boolean shouldStartProfile;
     /**
-     * The previously observed Talon velocity. Used for calculating acceleration.
+     * The previously observed motor velocity. Used for calculating acceleration.
      */
     private double lastVel;
     /**
-     * The acceleration of the Talon.
+     * The acceleration of the motor.
      */
     private double accel;
 
     /**
      * Default constructor.
      *
-     * @param talon         The Talon SRX this subsystem controls.
-     * @param pathGenerator The object for generating the paths for the Talon to run.
+     * @param motorController         The motorController this subsystem controls.
+     * @param pathGenerator The object for generating the paths for the motor to run.
      */
     @JsonCreator
-    public SubsystemPositionOnboardMP(@NotNull @JsonProperty(required = true) FPSTalon talon,
+    public SubsystemPositionOnboardMP(@NotNull @JsonProperty(required = true) SmartMotorController motorController,
                                       @NotNull @JsonProperty(required = true) PathGenerator pathGenerator) {
-        this.talon = talon;
+        this.motorController = motorController;
         this.pathGenerator = pathGenerator;
         shouldStartProfile = false;
     }
@@ -72,7 +72,7 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
     @Override
     public void setPositionSetpoint(double feet) {
         disableMotor();
-        loadMotionProfile(pathGenerator.generateProfile(talon.getPositionFeet(), talon.getVelocity(), accel, feet));
+        loadMotionProfile(pathGenerator.generateProfile(motorController.getPositionFeet(), motorController.getVelocity(), accel, feet));
         shouldStartProfile = true;
     }
 
@@ -83,7 +83,7 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
      */
     @Override
     public void setMotorOutput(double output) {
-        talon.setVelocity(output);
+        motorController.setVelocity(output);
     }
 
     /**
@@ -93,7 +93,7 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
      */
     @Override
     public boolean getReverseLimit() {
-        return talon.getRevLimitSwitch();
+        return motorController.getRevLimitSwitch();
     }
 
     /**
@@ -103,7 +103,7 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
      */
     @Override
     public boolean getForwardLimit() {
-        return talon.getFwdLimitSwitch();
+        return motorController.getFwdLimitSwitch();
     }
 
     /**
@@ -111,7 +111,7 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
      */
     @Override
     public void resetPosition() {
-        talon.resetPosition();
+        motorController.resetPosition();
     }
 
     /**
@@ -123,7 +123,7 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
     public boolean onTarget() {
         //Don't stop before we start the profile
         if (profileFinished() && !shouldStartProfile) {
-            talon.holdPositionMP();
+            motorController.holdPositionMP();
             return true;
         } else {
             return false;
@@ -135,7 +135,7 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
      */
     @Override
     public void enableMotor() {
-        talon.enable();
+        motorController.enable();
     }
 
     /**
@@ -143,7 +143,7 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
      */
     @Override
     public void disableMotor() {
-        talon.disable();
+        motorController.disable();
     }
 
     /**
@@ -152,15 +152,15 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
     @Override
     public void update() {
         //Update acceleration
-        accel = talon.getVelocity() - lastVel;
-        //Do clever math to get the talon velocity back out
+        accel = motorController.getVelocity() - lastVel;
+        //Do clever math to get the motorController velocity back out
         lastVel = accel + lastVel;
     }
 
     /**
      * When the run method of the scheduler is called this method will be called.
      * <p>
-     * Starts running the Talon profile if it's ready.
+     * Starts running the profile if it's ready.
      */
     @Override
     public void periodic() {
@@ -178,7 +178,7 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
      */
     @Override
     public void loadMotionProfile(@NotNull MotionProfileData profile) {
-        talon.loadProfile(profile);
+        motorController.loadProfile(profile);
     }
 
     /**
@@ -186,7 +186,7 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
      */
     @Override
     public void startRunningLoadedProfile() {
-        talon.startRunningMP();
+        motorController.startRunningMP();
     }
 
     /**
@@ -196,7 +196,7 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
      */
     @Override
     public boolean profileFinished() {
-        return talon.MPIsFinished();
+        return motorController.MPIsFinished();
     }
 
     /**
@@ -212,7 +212,7 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
      */
     @Override
     public void holdPosition() {
-        talon.holdPositionMP();
+        motorController.holdPositionMP();
     }
 
     /**
@@ -222,6 +222,6 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
      */
     @Override
     public boolean readyToRunProfile() {
-        return talon.readyForMP();
+        return motorController.readyForMP();
     }
 }

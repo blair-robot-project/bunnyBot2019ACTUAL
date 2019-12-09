@@ -148,7 +148,7 @@ implements org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.Subsystem
 <!--   -->
 </a>
 <h3>Fields inherited from class&nbsp;org.usfirst.frc.team449.robot.subsystem.interfaces.position.<a href="../../../../../../../../org/usfirst/frc/team449/robot/subsystem/interfaces/position/SubsystemPositionOnboardMP.html" title="class in org.usfirst.frc.team449.robot.subsystem.interfaces.position">SubsystemPositionOnboardMP</a></h3>
-<code><a href="../../../../../../../../org/usfirst/frc/team449/robot/subsystem/interfaces/position/SubsystemPositionOnboardMP.html#startedProfile">startedProfile</a>, <a href="../../../../../../../../org/usfirst/frc/team449/robot/subsystem/interfaces/position/SubsystemPositionOnboardMP.html#talon">talon</a></code></li>
+<code><a href="../../../../../../../../org/usfirst/frc/team449/robot/subsystem/interfaces/position/SubsystemPositionOnboardMP.html#startedProfile">startedProfile</a>, <a href="../../../../../../../../org/usfirst/frc/team449/robot/subsystem/interfaces/position/SubsystemPositionOnboardMP.html#motorController">motorController</a></code></li>
 </ul>
 </li>
 </ul>
@@ -164,7 +164,7 @@ implements org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.Subsystem
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../../org/usfirst/frc/team449/robot/subsystem/complex/elevator/SubsystemPositionMPWithBrake.html#SubsystemPositionMPWithBrake-org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon-org.usfirst.frc.team449.robot.components.PathGenerator-org.usfirst.frc.team449.robot.jacksonWrappers.MappedDoubleSolenoid-edu.wpi.first.wpilibj.DoubleSolenoid.Value-">SubsystemPositionMPWithBrake</a></span>(@NotNull org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon&nbsp;talon,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../../org/usfirst/frc/team449/robot/subsystem/complex/elevator/SubsystemPositionMPWithBrake.html#SubsystemPositionMPWithBrake-org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon-org.usfirst.frc.team449.robot.components.PathGenerator-org.usfirst.frc.team449.robot.jacksonWrappers.MappedDoubleSolenoid-edu.wpi.first.wpilibj.DoubleSolenoid.Value-">SubsystemPositionMPWithBrake</a></span>(@NotNull org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon&nbsp;motorController,
                             @NotNull <a href="../../../../../../../../org/usfirst/frc/team449/robot/components/PathGenerator.html" title="class in org.usfirst.frc.team449.robot.components">PathGenerator</a>&nbsp;pathGenerator,
                             @NotNull org.usfirst.frc.team449.robot.jacksonWrappers.MappedDoubleSolenoid&nbsp;piston,
                             edu.wpi.first.wpilibj.DoubleSolenoid.Value&nbsp;brakeReleasePosition)</code>
@@ -257,7 +257,7 @@ implements org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.Subsystem
 <li class="blockList">
 <h4>SubsystemPositionMPWithBrake</h4>
 <pre>public&nbsp;SubsystemPositionMPWithBrake(@NotNull
-                                    @NotNull org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon&nbsp;talon,
+                                    @NotNull org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon&nbsp;motorController,
                                     @NotNull
                                     @NotNull <a href="../../../../../../../../org/usfirst/frc/team449/robot/components/PathGenerator.html" title="class in org.usfirst.frc.team449.robot.components">PathGenerator</a>&nbsp;pathGenerator,
                                     @NotNull
@@ -267,7 +267,7 @@ implements org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.Subsystem
 <div class="block">Default constructor.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>talon</code> - The Talon SRX this subsystem controls.</dd>
+<dd><code>motorController</code> - The Talon SRX this subsystem controls.</dd>
 <dd><code>pathGenerator</code> - The object for generating the paths for the Talon to run.</dd>
 <dd><code>piston</code> - The piston for the brake.</dd>
 <dd><code>brakeReleasePosition</code> - The position of the piston for the brake when it's allowing the elevator to move.

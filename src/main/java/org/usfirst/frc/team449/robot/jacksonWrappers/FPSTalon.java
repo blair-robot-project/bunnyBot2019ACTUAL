@@ -67,6 +67,7 @@ public class FPSTalon extends SmartMotorBase implements SmartMotor, SimpleMotor,
     private final double updateMMPeriodSecs;
 
     private boolean velocityPIDSet;
+
     /**
      * Default constructor.
      *
@@ -773,9 +774,6 @@ public class FPSTalon extends SmartMotorBase implements SmartMotor, SimpleMotor,
         canTalon.set(ControlMode.MotionProfile, SetValueMotionProfile.Disable.value);
         //Reset the Talon
         clearMP();
-
-        //Declare this out here to avoid garbage collection
-        double feedforward;
 
         //Set proper PID constants
         if (data.isBackwards()) {

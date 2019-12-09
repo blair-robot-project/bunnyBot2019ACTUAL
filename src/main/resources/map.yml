@@ -494,7 +494,7 @@ teleopStartupCommand:
 #          runnables:
 #            - org.usfirst.frc.team449.robot.components.TalonRumbleComponent:
 #                '@id': rumbleComponent
-#                talon:
+#                motorController:
 #                  org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
 #                      lateralSlider
 #                joystick:

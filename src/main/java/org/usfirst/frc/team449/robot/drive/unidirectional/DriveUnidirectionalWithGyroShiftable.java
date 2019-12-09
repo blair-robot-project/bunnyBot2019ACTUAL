@@ -8,8 +8,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.usfirst.frc.team449.robot.components.ShiftComponent;
 import org.usfirst.frc.team449.robot.drive.shifting.DriveShiftable;
-import org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon;
 import org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS;
+import org.usfirst.frc.team449.robot.sparkMax.SmartMotorController;
 
 
 /**
@@ -32,15 +32,15 @@ public class DriveUnidirectionalWithGyroShiftable extends DriveUnidirectionalWit
     /**
      * Default constructor.
      *
-     * @param leftMaster                The master talon on the left side of the drive.
-     * @param rightMaster               The master talon on the right side of the drive.
+     * @param leftMaster                The master motorController on the left side of the drive.
+     * @param rightMaster               The master motorController on the right side of the drive.
      * @param ahrs                      The NavX on this drive.
      * @param shiftComponent            The component that controls shifting.
      * @param startingOverrideAutoshift Whether to start with autoshift disabled. Defaults to false.
      */
     @JsonCreator
-    public DriveUnidirectionalWithGyroShiftable(@NotNull @JsonProperty(required = true) FPSTalon leftMaster,
-                                                @NotNull @JsonProperty(required = true) FPSTalon rightMaster,
+    public DriveUnidirectionalWithGyroShiftable(@NotNull @JsonProperty(required = true) SmartMotorController leftMaster,
+                                                @NotNull @JsonProperty(required = true) SmartMotorController rightMaster,
                                                 @NotNull @JsonProperty(required = true) MappedAHRS ahrs,
                                                 @NotNull @JsonProperty(required = true) ShiftComponent shiftComponent,
                                                 boolean startingOverrideAutoshift) {

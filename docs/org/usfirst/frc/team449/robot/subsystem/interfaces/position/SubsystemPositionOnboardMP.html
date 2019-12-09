@@ -156,7 +156,7 @@ implements org.usfirst.frc.team449.robot.subsystem.interfaces.position.Subsystem
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../../org/usfirst/frc/team449/robot/subsystem/interfaces/position/SubsystemPositionOnboardMP.html#talon">talon</a></span></code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../../org/usfirst/frc/team449/robot/subsystem/interfaces/position/SubsystemPositionOnboardMP.html#motorController">motorController</a></span></code>
 <div class="block">The Talon SRX this subsystem controls.</div>
 </td>
 </tr>
@@ -175,7 +175,7 @@ implements org.usfirst.frc.team449.robot.subsystem.interfaces.position.Subsystem
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../../org/usfirst/frc/team449/robot/subsystem/interfaces/position/SubsystemPositionOnboardMP.html#SubsystemPositionOnboardMP-org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon-org.usfirst.frc.team449.robot.components.PathGenerator-">SubsystemPositionOnboardMP</a></span>(@NotNull org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon&nbsp;talon,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../../org/usfirst/frc/team449/robot/subsystem/interfaces/position/SubsystemPositionOnboardMP.html#SubsystemPositionOnboardMP-org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon-org.usfirst.frc.team449.robot.components.PathGenerator-">SubsystemPositionOnboardMP</a></span>(@NotNull org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon&nbsp;motorController,
                           @NotNull <a href="../../../../../../../../org/usfirst/frc/team449/robot/components/PathGenerator.html" title="class in org.usfirst.frc.team449.robot.components">PathGenerator</a>&nbsp;pathGenerator)</code>
 <div class="block">Default constructor.</div>
 </td>
@@ -341,13 +341,13 @@ implements org.usfirst.frc.team449.robot.subsystem.interfaces.position.Subsystem
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="talon">
+<a name="motorController">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>talon</h4>
-<pre>protected final&nbsp;org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon talon</pre>
+<h4>motorController</h4>
+<pre>protected final&nbsp;org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon motorController</pre>
 <div class="block">The Talon SRX this subsystem controls.</div>
 </li>
 </ul>
@@ -376,13 +376,13 @@ implements org.usfirst.frc.team449.robot.subsystem.interfaces.position.Subsystem
 <li class="blockList">
 <h4>SubsystemPositionOnboardMP</h4>
 <pre>public&nbsp;SubsystemPositionOnboardMP(@NotNull
-                                  @NotNull org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon&nbsp;talon,
+                                  @NotNull org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon&nbsp;motorController,
                                   @NotNull
                                   @NotNull <a href="../../../../../../../../org/usfirst/frc/team449/robot/components/PathGenerator.html" title="class in org.usfirst.frc.team449.robot.components">PathGenerator</a>&nbsp;pathGenerator)</pre>
 <div class="block">Default constructor.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>talon</code> - The Talon SRX this subsystem controls.</dd>
+<dd><code>motorController</code> - The Talon SRX this subsystem controls.</dd>
 <dd><code>pathGenerator</code> - The object for generating the paths for the Talon to run.</dd>
 </dl>
 </li>

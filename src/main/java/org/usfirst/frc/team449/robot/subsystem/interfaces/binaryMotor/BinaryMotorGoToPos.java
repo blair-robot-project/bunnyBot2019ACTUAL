@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import org.jetbrains.annotations.NotNull;
-import org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon;
+import org.usfirst.frc.team449.robot.sparkMax.SmartMotorController;
 
 /**
  * A binary motor subsystem that uses PID to go to a given position when turned on.
@@ -15,13 +15,13 @@ import org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon;
 public class BinaryMotorGoToPos extends Subsystem implements SubsystemBinaryMotor {
 
     /**
-     * The talon to move to the given position.
+     * The motorController to move to the given position.
      */
     @NotNull
-    private final FPSTalon talon;
+    private final SmartMotorController motorController;
 
     /**
-     * The position, in feet, for the talon to go to.
+     * The position, in feet, for the motorController to go to.
      */
     private final double positionFeet;
 
@@ -33,13 +33,13 @@ public class BinaryMotorGoToPos extends Subsystem implements SubsystemBinaryMoto
     /**
      * Default constructor
      *
-     * @param talon        The talon to move to the given position.
-     * @param positionFeet The position, in feet, for the talon to go to. Defaults to 0.
+     * @param motorController        The motorController to move to the given position.
+     * @param positionFeet The position, in feet, for the motorController to go to. Defaults to 0.
      */
     @JsonCreator
-    public BinaryMotorGoToPos(@JsonProperty(required = true) @NotNull FPSTalon talon,
+    public BinaryMotorGoToPos(@JsonProperty(required = true) @NotNull SmartMotorController motorController,
                               double positionFeet) {
-        this.talon = talon;
+        this.motorController = motorController;
         this.positionFeet = positionFeet;
         motorOn = false;
     }
@@ -56,8 +56,8 @@ public class BinaryMotorGoToPos extends Subsystem implements SubsystemBinaryMoto
      */
     @Override
     public void turnMotorOn() {
-        talon.enable();
-        talon.setPositionSetpoint(positionFeet);
+        motorController.enable();
+        motorController.setPositionSetpoint(positionFeet);
         motorOn = true;
     }
 
@@ -66,7 +66,7 @@ public class BinaryMotorGoToPos extends Subsystem implements SubsystemBinaryMoto
      */
     @Override
     public void turnMotorOff() {
-        talon.disable();
+        motorController.disable();
         motorOn = false;
     }
 
