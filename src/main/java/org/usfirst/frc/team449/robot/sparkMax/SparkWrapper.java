@@ -1,7 +1,6 @@
 package org.usfirst.frc.team449.robot.sparkMax;
 
 import com.ctre.phoenix.motion.MotionProfileStatus;
-import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -50,7 +49,7 @@ public class SparkWrapper extends SmartMotorBase {
      * The SPARK-MAX that this class is a wrapper on
      */
 //	@NotNull
-    protected final SparkWithMPQueue canSpark;
+    protected final SparkWithMP canSpark;
     /**
      * Forward limit switch
      */
@@ -61,7 +60,7 @@ public class SparkWrapper extends SmartMotorBase {
     protected final CANDigitalInput revLimitSwitch;
 
     /**
-     * A cache for the results of querying status using {@link SparkWithMPQueue#getMotionProfileStatus(MotionProfileStatus)}.
+     * A cache for the results of querying status using {@link SparkWithMP#getMotionProfileStatus(MotionProfileStatus)}.
      */
     @NotNull
     private final MotionProfileStatus motionProfileStatus;
@@ -170,7 +169,7 @@ public class SparkWrapper extends SmartMotorBase {
             FPSTalon forwards its port argument to the single-parameter TalonSRX constructor,
             which ORs it with 0x02040000 to obtain a final arb ID.
          */
-        this.canSpark = new SparkWithMPQueue(port, CANSparkMaxLowLevel.MotorType.kBrushless);
+        this.canSpark = new SparkWithMP(port, CANSparkMaxLowLevel.MotorType.kBrushless);
 
         //Set this to false because we only use reverseOutput for slaves.
         this.canSpark.setInverted(reverseOutput);
@@ -714,8 +713,8 @@ public class SparkWrapper extends SmartMotorBase {
     /**
      * A private utility method for updating motionProfileStatus with the current motion profile status. Makes sure that
      * the status is only gotten once per tick, to avoid CAN traffic overload.
-     *
-     * @see FPSTalon#updateMotionProfileStatus()
+     * <p>
+     * Analogous to FPSTalon#updateMotionProfileStatus() (not publicly visible)
      */
     private void updateMotionProfileStatus() {
         if (this.timeMPStatusLastRead < Clock.currentTimeMillis()) {
@@ -748,6 +747,7 @@ public class SparkWrapper extends SmartMotorBase {
      * Reset all MP-related stuff, including all points loaded in both the API and bottom-level buffers.
      */
     private void clearMP() {
+        this.executorNotifier.stop();
         this.canSpark.clearMotionProfileHasUnderrun(0);
         this.canSpark.clearMotionProfileTrajectories();
     }
@@ -756,17 +756,18 @@ public class SparkWrapper extends SmartMotorBase {
      * Starts running the loaded motion profile.
      */
     public void startRunningMP() {
-       // this.canSpark.set(ControlType.kSmartMotion);
+        this.executorNotifier.startPeriodic(this.updaterProcessPeriodSecs);
     }
 
     @Override
     public void holdPositionMP() {
-        this.canSpark.setReference(ControlType.kPosition, SetValueMotionProfile.Hold.value);
+        // Set the target position to be the current position.
+        this.canSpark.setReference(ControlType.kPosition, this.encoder.getPosition());
     }
 
     @Override
     public void executeMPPoint(double pos, double vel, double acc) {
-        throw new UnsupportedOperationException();
+        this.canSpark.setPointReference(pos, vel, acc);
     }
 
     /**
@@ -776,6 +777,7 @@ public class SparkWrapper extends SmartMotorBase {
      */
     public void loadProfile(final MotionProfileData data) {
         this.executorNotifier.stop();
+
         //Reset the Spark
         this.disable();
         this.clearMP();
@@ -785,21 +787,15 @@ public class SparkWrapper extends SmartMotorBase {
         double feedforward;
 
         //Set proper PID constants
-        if (data.isBackwards()) {
-            if (data.isVelocityOnly()) {
-                this.canSpark.getPIDController().setP(0, 1);
-                this.canSpark.getPIDController().setI(0, 1);
-                this.canSpark.getPIDController().setD(0, 1);
-            } else {
+        if (data.isVelocityOnly()) {
+            this.canSpark.getPIDController().setP(0, 1);
+            this.canSpark.getPIDController().setI(0, 1);
+            this.canSpark.getPIDController().setD(0, 1);
+        } else {
+            if (data.isBackwards()) {
                 this.canSpark.getPIDController().setP(this.currentGearSettings.getMotionProfilePRev(), 1);
                 this.canSpark.getPIDController().setI(this.currentGearSettings.getMotionProfileIRev(), 1);
                 this.canSpark.getPIDController().setD(this.currentGearSettings.getMotionProfileDRev(), 1);
-            }
-        } else {
-            if (data.isVelocityOnly()) {
-                this.canSpark.getPIDController().setP(0, 1);
-                this.canSpark.getPIDController().setI(0, 1);
-                this.canSpark.getPIDController().setD(0, 1);
             } else {
                 this.canSpark.getPIDController().setP(this.currentGearSettings.getMotionProfilePFwd(), 1);
                 this.canSpark.getPIDController().setI(this.currentGearSettings.getMotionProfileIFwd(), 1);
@@ -843,7 +839,6 @@ public class SparkWrapper extends SmartMotorBase {
             // Send the point to the Spark's buffer
             this.canSpark.pushMPPoint(point);
         }
-        this.executorNotifier.startPeriodic(this.updaterProcessPeriodSecs);
     }
 
     /**
