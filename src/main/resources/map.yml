@@ -235,15 +235,6 @@ logger:
             '@id': upshiftDebouncer
             bufferTimeSeconds: 0.06
           upshiftFwdThresh: 0.4
-    - org.usfirst.frc.team449.robot.sparkMax.SparkWrapper:
-        '@id': spark
-        port: 0
-        enableBrakeMode: true
-        PDP:
-          org.usfirst.frc.team449.robot.jacksonWrappers.PDP: PDP
-        voltagePerCurrentLinReg:
-          bufferSize: 250
-          rSquaredThreshhold: 0.75
     - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
         '@id': carouselMotor
         port: 9
@@ -267,6 +258,15 @@ teleopStartupCommand:
           subsystem:
             org.usfirst.frc.team449.robot.subsystem.singleImplementation.pneumatics.Pneumatics:
               pneumatics
+      - org.usfirst.frc.team449.robot.subsystem.interfaces.binaryMotor.commands.TurnMotorOn:
+          '@id': spinCarousel
+          subsystem:
+            org.usfirst.frc.team449.robot.subsystem.interfaces.binaryMotor.BinaryMotorSimple:
+              '@id': carouselSubsystem
+              motor:
+                org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+                  carouselMotor
+              velocity: 0.1
 buttons:
   - button:
       org.usfirst.frc.team449.robot.oi.buttons.dPadButton:
@@ -292,71 +292,69 @@ buttons:
                 org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
                   drive
     action: WHEN_PRESSED
-  - button:
-      org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
-        '@id': carouselButton
-        joystick:
-          org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
-            mechanismsGamepad
-        buttonNumber: 2
-    command:
-      org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.commands.CarouselRotate:
-        '@id': carouselCommand
-        subsystem:
-          org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.AnalogMotorPosition:
-            '@id': carousel
-            carouselMotor:
-              org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-                carouselMotor
-            minPos: 2
-            maxPos: 6
-  - button:
-      org.usfirst.frc.team449.robot.oi.buttons.dPadButton:
-        forceLowGear
-    command:
-      org.usfirst.frc.team449.robot.drive.shifting.commands.OverrideAutoShift:
-        '@id': unoverrideAutoshift
-        drive:
-          org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
-            drive
-        override: false
-    action: WHEN_RELEASED
-  - button:
-      org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
-        '@id': sparkTest
-        joystick:
-          org.usfirst.team449.robot.jacksonWrapper.MappedJoystick:
-            driverGamepad
-          buttonNumber: 1
-      command:
-        org.usfirst.frc.team449.robot.commands.general.CommandSequence:
-          '@id': switchHeightRaiseIntake
-          commandList:
-            - org.usfirst.frc.team449.robot.subsystem.interfaces.position.commands.GoToPosition:
-                '@id': goToSwitchHeight
-                subsystem:
-                  org.usfirst.frc.team449.robot.subsystem.interfaces.position.SubsystemPositionOnboardMP:
-                    '@id': elevator
-                    talon:
-                      org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-                        elevatorTalon
-                    pathGenerator:
-                      '@id': pathGenerator
-                      fwdMaxVel: 4
-                      revMaxVel: 6
-                      maxAccel: 6
-                      deltaTimeSecs: 0.05
-                setpoint: 2.75
-            - org.usfirst.frc.team449.robot.commands.multiInterface.MovePistonAndRunIntake:
-                '@id': liftSideswipeManual2
-                subsystem:
-                  org.usfirst.frc.team449.robot.subsystem.complex.intake.IntakeActuatedTwoSides:
-                    intake
-                pistonPos: kReverse
-                intakeMode: "OFF"
-        action: WHEN_PRESSED
-
-
+#  - button:
+#      org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+#        '@id': carouselButton
+#        joystick:
+#          org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+#            mechanismsGamepad
+#        buttonNumber: 2
+#    command:
+#      org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.commands.CarouselRotate:
+#        '@id': carouselCommand
+##        subsystem:
+##          org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.AnalogMotorPosition:
+##            '@id': carousel
+##            carouselMotor:
+##              org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+##                carouselMotor
+##            minPos: 2
+##            maxPos: 6
+#  - button:
+#      org.usfirst.frc.team449.robot.oi.buttons.dPadButton:
+#        forceLowGear
+#    command:
+#      org.usfirst.frc.team449.robot.drive.shifting.commands.OverrideAutoShift:
+#        '@id': unoverrideAutoshift
+#        drive:
+#          org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
+#            drive
+#        override: false
+#    action: WHEN_RELEASED
+#  - button:
+#      org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+#        '@id': sparkTest
+#        joystick:
+#          org.usfirst.team449.robot.jacksonWrapper.MappedJoystick:
+#            driverGamepad
+#          buttonNumber: 1
+#      command:
+#        org.usfirst.frc.team449.robot.commands.general.CommandSequence:
+#          '@id': switchHeightRaiseIntake
+#          commandList:
+#            - org.usfirst.frc.team449.robot.subsystem.interfaces.position.commands.GoToPosition:
+#                '@id': goToSwitchHeight
+#                subsystem:
+#                  org.usfirst.frc.team449.robot.subsystem.interfaces.position.SubsystemPositionOnboardMP:
+#                    '@id': elevator
+#                    talon:
+#                      org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+#                        elevatorTalon
+#                    pathGenerator:
+#                      '@id': pathGenerator
+#                      fwdMaxVel: 4
+#                      revMaxVel: 6
+#                      maxAccel: 6
+#                      deltaTimeSecs: 0.05
+#                setpoint: 2.75
+#            - org.usfirst.frc.team449.robot.commands.multiInterface.MovePistonAndRunIntake:
+#                '@id': liftSideswipeManual2
+#                subsystem:
+#                  org.usfirst.frc.team449.robot.subsystem.complex.intake.IntakeActuatedTwoSides:
+#                    intake
+#                pistonPos: kReverse
+#                intakeMode: "OFF"
+#        action: WHEN_PRESSED
 autoStartupCommand:
 #  org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.commands.GetPathFromJetson:
 #    '@id': getPath
@@ -404,6 +402,5 @@ updater:
       - org.usfirst.frc.team449.robot.oi.unidirectional.arcade.OIArcadeWithDPad: oi
       - org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS: navX
       - org.usfirst.frc.team449.robot.jacksonWrappers.PDP: PDP
-      - org.usfirst.frc.team449.robot.oi.throttles.ThrottleBasic: mechRightTrigger
-      - org.usfirst.frc.team449.robot.oi.throttles.ThrottleBasic: mechLeftTrigger
-#      - org.usfirst.frc.team449.robot.sparkMax.SparkWrapper: spark
+#      - org.usfirst.frc.team449.robot.oi.throttles.ThrottleBasic: mechRightTrigger
+#      - org.usfirst.frc.team449.robot.oi.throttles.ThrottleBasic: mechLeftTrigger
