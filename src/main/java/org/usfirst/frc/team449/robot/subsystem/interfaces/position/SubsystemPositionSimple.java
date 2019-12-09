@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import org.jetbrains.annotations.NotNull;
 import org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon;
 import org.usfirst.frc.team449.robot.sparkMax.SmartMotorController;
+import org.usfirst.frc.team449.robot.sparkMax.SmartMotorControllerBase;
 
 /**
  * A simple SubsystemPosition that uses a {@link FPSTalon}.
@@ -19,7 +20,7 @@ public class SubsystemPositionSimple extends Subsystem implements SubsystemPosit
      * Motor that controls the subsystem
      */
     @NotNull
-    private final SmartMotorController motor;
+    private final SmartMotorControllerBase motor;
 
     /**
      * How close the motor has to be to the setpoint to be considered on target, in feet.
@@ -33,7 +34,7 @@ public class SubsystemPositionSimple extends Subsystem implements SubsystemPosit
      * @param onTargetTolerance How close the motor has to be to the setpoint to be considered on target, in feet.
      */
     @JsonCreator
-    public SubsystemPositionSimple(@NotNull @JsonProperty(required = true) SmartMotorController motorController,
+    public SubsystemPositionSimple(@NotNull @JsonProperty(required = true) SmartMotorControllerBase motorController,
                                    @JsonProperty(required = true) double onTargetTolerance) {
         this.motor = motorController;
         this.onTargetTolerance = onTargetTolerance;

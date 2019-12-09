@@ -10,7 +10,7 @@ import org.usfirst.frc.team449.robot.generalInterfaces.loggable.Loggable;
 import org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS;
 import org.usfirst.frc.team449.robot.other.Logger;
 import org.usfirst.frc.team449.robot.other.MotionProfileData;
-import org.usfirst.frc.team449.robot.sparkMax.SmartMotorController;
+import org.usfirst.frc.team449.robot.sparkMax.SmartMotorControllerBase;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.AHRS.SubsystemAHRS;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.TwoSideMPSubsystem.SubsystemMPTwoSides;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.TwoSideMPSubsystem.manual.SubsystemMPManualTwoSides;
@@ -28,13 +28,13 @@ public class DriveUnidirectionalWithGyro extends Subsystem implements SubsystemA
      * Right master SmartMotorController
      */
     @NotNull
-    protected final SmartMotorController rightMaster;
+    protected final SmartMotorControllerBase rightMaster;
 
     /**
      * Left master SmartMotorController
      */
     @NotNull
-    protected final SmartMotorController leftMaster;
+    protected final SmartMotorControllerBase leftMaster;
 
     /**
      * The NavX gyro
@@ -61,8 +61,8 @@ public class DriveUnidirectionalWithGyro extends Subsystem implements SubsystemA
      * @param ahrs        The NavX gyro for calculating this drive's heading and angular velocity.
      */
     @JsonCreator
-    public DriveUnidirectionalWithGyro(@NotNull @JsonProperty(required = true) SmartMotorController leftMaster,
-                                       @NotNull @JsonProperty(required = true) SmartMotorController rightMaster,
+    public DriveUnidirectionalWithGyro(@NotNull @JsonProperty(required = true) SmartMotorControllerBase leftMaster,
+                                       @NotNull @JsonProperty(required = true) SmartMotorControllerBase rightMaster,
                                        @NotNull @JsonProperty(required = true) MappedAHRS ahrs) {
         super();
         //Initialize stuff
