@@ -69,7 +69,7 @@
 //    @NotNull
 //    private final MotionProfileStatus motionProfileStatus;
 //    /**
-//     * A notifier that moves points from the API-level buffer to the talon-level one.
+//     * A notifier that moves points from the API-level buffer to the motorController-level one.
 //     */
 //    private final Notifier bottomBufferLoader;
 //    /**
@@ -82,7 +82,7 @@
 //    @NotNull
 //    private final Map<Integer, PerGearSettings> perGearSettings;
 //    /**
-//     * The talon's name, used for logging purposes.
+//     * The motorController's name, used for logging purposes.
 //     */
 //    @NotNull
 //    private final String name;
@@ -123,7 +123,7 @@
 //     * Default constructor.
 //     *
 //     * @param port                       CAN port of this Talon.
-//     * @param name                       The talon's name, used for logging purposes. Defaults to talon_portnum
+//     * @param name                       The motorController's name, used for logging purposes. Defaults to talon_portnum
 //     * @param reverseOutput              Whether to reverse the output.
 //     * @param enableBrakeMode            Whether to brake or coast when stopped.
 //     * @param voltagePerCurrentLinReg    The component for doing linear regression to find the resistance.
@@ -231,12 +231,12 @@
 //        //If given no gear settings, use the default values.
 //        if (perGearSettings == null || perGearSettings.size() == 0) {
 //            this.perGearSettings.put(0, new PerGearSettings());
-//            this.perGearSettings.get(0).getFeedForwardComponent().setTalon(this);
+//            this.perGearSettings.get(0).getFeedForwardComponent().setMotorController(this);
 //        }
 //        //Otherwise, map the settings to the gear they are.
 //        else {
 //            for (PerGearSettings settings : perGearSettings) {
-//                settings.getFeedForwardComponent().setTalon(this);
+//                settings.getFeedForwardComponent().setMotorController(this);
 //                this.perGearSettings.put(settings.getGear(), settings);
 //            }
 //        }
@@ -452,7 +452,7 @@
 //    }
 //
 //    /**
-//     * Converts the velocity read by the talon's getVelocity() method to the FPS of the output shaft. Note this DOES
+//     * Converts the velocity read by the motorController's getVelocity() method to the FPS of the output shaft. Note this DOES
 //     * account for post-encoder gearing.
 //     *
 //     * @param encoderReading The velocity read from the encoder with no conversions.
@@ -469,7 +469,7 @@
 //    }
 //
 //    /**
-//     * Converts from the velocity of the output shaft to what the talon's getVelocity() method would read at that
+//     * Converts from the velocity of the output shaft to what the motorController's getVelocity() method would read at that
 //     * velocity. Note this DOES account for post-encoder gearing.
 //     *
 //     * @param FPS The velocity of the output shaft, in FPS.
@@ -673,7 +673,7 @@
 //    }
 //
 //    /**
-//     * @return the position of the talon in feet, or null of inches per rotation wasn't given.
+//     * @return the position of the motorController in feet, or null of inches per rotation wasn't given.
 //     */
 //    @Override
 //    public Double getPositionFeet() {
@@ -720,7 +720,7 @@
 //    }
 //
 //    /**
-//     * Whether this talon is ready to start running a profile.
+//     * Whether this motorController is ready to start running a profile.
 //     *
 //     * @return True if minNumPointsInBottomBuffer points have been loaded or the top buffer is empty, false otherwise.
 //     */
@@ -731,9 +731,9 @@
 //    }
 //
 //    /**
-//     * Whether this talon has finished running a profile.
+//     * Whether this motorController has finished running a profile.
 //     *
-//     * @return True if the active point in the talon is the last point, false otherwise.
+//     * @return True if the active point in the motorController is the last point, false otherwise.
 //     */
 //    @Override
 //    public boolean MPIsFinished() {
@@ -766,7 +766,7 @@
 //    }
 //
 //    /**
-//     * Disables the talon and loads the given profile into the talon.
+//     * Disables the motorController and loads the given profile into the motorController.
 //     *
 //     * @param data The profile to load.
 //     */

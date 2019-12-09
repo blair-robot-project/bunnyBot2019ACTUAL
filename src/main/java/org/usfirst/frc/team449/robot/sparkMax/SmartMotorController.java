@@ -122,7 +122,7 @@ public interface SmartMotorController extends SimpleMotor, Shiftable, Loggable {
     void setGearScaledVelocity(double velocity, gear gear);
 
     /**
-     * @return the position of the talon in feet, or null of inches per rotation wasn't given.
+     * @return the position of the motorController in feet, or null of inches per rotation wasn't given.
      */
     Double getPositionFeet();
 
@@ -146,16 +146,16 @@ public interface SmartMotorController extends SimpleMotor, Shiftable, Loggable {
     boolean getRevLimitSwitch();
 
     /**
-     * Whether this talon is ready to start running a profile.
+     * Whether this motorController is ready to start running a profile.
      *
      * @return True if minNumPointsInBottomBuffer points have been loaded or the top buffer is empty, false otherwise.
      */
     boolean readyForMP();
 
     /**
-     * Whether this talon has finished running a profile.
+     * Whether this motorController has finished running a profile.
      *
-     * @return True if the active point in the talon is the last point, false otherwise.
+     * @return True if the active point in the motorController is the last point, false otherwise.
      */
     boolean MPIsFinished();
 
@@ -170,7 +170,7 @@ public interface SmartMotorController extends SimpleMotor, Shiftable, Loggable {
     void holdPositionMP();
 
     /**
-     * Disables the talon and loads the given profile into the talon.
+     * Disables the motorController and loads the given profile into the motorController.
      *
      * @param data The profile to load.
      */

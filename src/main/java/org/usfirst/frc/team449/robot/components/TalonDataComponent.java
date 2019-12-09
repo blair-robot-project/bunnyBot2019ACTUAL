@@ -17,7 +17,7 @@ public class TalonDataComponent implements DoubleSupplier {
 
     /**
      *
-     * @param talon the talon to get a value from
+     * @param talon the motorController to get a value from
      * @param value whether to get the position, velocity, current, or voltage
      */
     @JsonCreator
@@ -28,7 +28,7 @@ public class TalonDataComponent implements DoubleSupplier {
     }
 
     /**
-     * @return the requested value from the talon - 0 if none specified
+     * @return the requested value from the motorController - 0 if none specified
      */
     @Override
     public double getAsDouble() {

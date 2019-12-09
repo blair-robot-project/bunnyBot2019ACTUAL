@@ -20,7 +20,7 @@ public class SlaveTalon implements Loggable {
     @NotNull
     private final TalonSRX talonSRX;
     /**
-     * The PDP this talon runs on. Used for resistance logging purposes.
+     * The PDP this motorController runs on. Used for resistance logging purposes.
      */
     @Nullable
     private PDP PDP;

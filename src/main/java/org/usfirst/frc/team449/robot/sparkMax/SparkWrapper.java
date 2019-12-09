@@ -40,7 +40,7 @@ public class SparkWrapper extends SmartMotorControllerBase implements SmartMotor
     /**
      * test out how many PWM cycles it should go on after
      * overcurrent, or not at all. Putting it at 0 because
-     * the talon's peak current limit had a timeout of 0 ms
+     * the motorController's peak current limit had a timeout of 0 ms
      */
     private static final int chopCycles = 0;
 
@@ -80,7 +80,7 @@ public class SparkWrapper extends SmartMotorControllerBase implements SmartMotor
      * Default constructor.
      *
      * @param port                       CAN port of this Spark.
-     * @param name                       The talon's name, used for logging purposes. Defaults to talon_portnum
+     * @param name                       The motorController's name, used for logging purposes. Defaults to talon_portnum
      * @param reverseOutput              Whether to reverse the output.
      * @param enableBrakeMode            Whether to brake or coast when stopped.
      * @param voltagePerCurrentLinReg    The component for doing linear regression to find the resistance.
@@ -262,7 +262,7 @@ public class SparkWrapper extends SmartMotorControllerBase implements SmartMotor
             //todo check if only encoders or analogs are also used
             /*if (feedbackDevice.equals(FeedbackDevice.CTRE_MagEncoder_Absolute) ||
                     feedbackDevice.equals(FeedbackDevice.CTRE_MagEncoder_Relative)) {
-                talon.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+                motorController.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
             } else {
                 canSpark.configSelectedFeedbackSensor(feedbackDevice, 0, 0);
             }*/
@@ -377,7 +377,7 @@ public class SparkWrapper extends SmartMotorControllerBase implements SmartMotor
         //  and min reverse output.
         //  Also, they recommend using the SPARK MAX GUI
         this.canSpark.getPIDController().setOutputRange(this.currentGearSettings.getRevPeakOutputVoltage() / 12., this.currentGearSettings.getFwdPeakOutputVoltage() / 12.);
-        /*talon.configPeakOutputForward(currentGearSettings.getFwdPeakOutputVoltage() / 12., 0);
+        /*motorController.configPeakOutputForward(currentGearSettings.getFwdPeakOutputVoltage() / 12., 0);
         canSpark.configPeakOutputReverse(currentGearSettings.getRevPeakOutputVoltage() / 12., 0);*/
 
         //Set min voltage
@@ -444,7 +444,7 @@ public class SparkWrapper extends SmartMotorControllerBase implements SmartMotor
     }
 
     /**
-     * Converts the velocity read by the talon's getVelocity() method to the FPS of the output shaft. Note this DOES
+     * Converts the velocity read by the motorController's getVelocity() method to the FPS of the output shaft. Note this DOES
      * account for post-encoder gearing.
      *
      * @param encoderReading The velocity read from the encoder with no conversions.
@@ -461,7 +461,7 @@ public class SparkWrapper extends SmartMotorControllerBase implements SmartMotor
     }
 
     /**
-     * Converts from the velocity of the output shaft to what the talon's getVelocity() method would read at that
+     * Converts from the velocity of the output shaft to what the motorController's getVelocity() method would read at that
      * velocity. Note this DOES account for post-encoder gearing.
      *
      * @param FPS The velocity of the output shaft, in FPS.
@@ -673,7 +673,7 @@ public class SparkWrapper extends SmartMotorControllerBase implements SmartMotor
     }
 
     /**
-     * @return the position of the talon in feet, or null if inches per rotation wasn't given.
+     * @return the position of the motorController in feet, or null if inches per rotation wasn't given.
      */
     public Double getPositionFeet() {
         return this.encoderToFeet(this.encoder.getPosition());
@@ -720,7 +720,7 @@ public class SparkWrapper extends SmartMotorControllerBase implements SmartMotor
     }
 
     /**
-     * Whether this talon is ready to start running a profile.
+     * Whether this motorController is ready to start running a profile.
      *
      * @return True if minNumPointsInBottomBuffer points have been loaded or the top buffer is empty, false otherwise.
      */
@@ -730,9 +730,9 @@ public class SparkWrapper extends SmartMotorControllerBase implements SmartMotor
     }
 
     /**
-     * Whether this talon has finished running a profile.
+     * Whether this motorController has finished running a profile.
      *
-     * @return True if the active point in the talon is the last point, false otherwise.
+     * @return True if the active point in the motorController is the last point, false otherwise.
      */
     public boolean MPIsFinished() {
         this.updateMotionProfileStatus();
@@ -760,7 +760,7 @@ public class SparkWrapper extends SmartMotorControllerBase implements SmartMotor
     }
 
     /**
-     * Disables the talon and loads the given profile into the talon.
+     * Disables the motorController and loads the given profile into the motorController.
      *
      * @param data The profile to load.
      */
