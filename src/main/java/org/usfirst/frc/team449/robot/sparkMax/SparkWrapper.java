@@ -43,7 +43,7 @@ public class SparkWrapper extends SmartMotorBase {
      * overcurrent, or not at all. Putting it at 0 because
      * the motorController's peak current limit had a timeout of 0 ms
      */
-    private static final int chopCycles = 0;
+    private static final int chopCycles = 1;
 
     /**
      * The SPARK-MAX that this class is a wrapper on
