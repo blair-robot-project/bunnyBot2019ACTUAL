@@ -72,11 +72,11 @@ clean {
 }
 
 eclipse {
-	classpath {
-		file.beforeMerged { cp ->
-			cp.entries.add( new org.gradle.plugins.ide.eclipse.model.SourceFolder('gen/main/java', null) )
-		}
-	}
+    classpath {
+        file.beforeMerged { cp ->
+            cp.entries.add( new org.gradle.plugins.ide.eclipse.model.SourceFolder('gen/main/java', null) )
+        }
+    }
 }
 
 idea {
