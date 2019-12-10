@@ -714,7 +714,7 @@ public class SparkWrapper extends SmartMotorBase {
      * A private utility method for updating motionProfileStatus with the current motion profile status. Makes sure that
      * the status is only gotten once per tick, to avoid CAN traffic overload.
      * <p>
-     * Analogous to FPSTalon#updateMotionProfileStatus() (not publicly visible)
+     * Analogous to FPSTalon#updateMotionProfileStatus() (not publicly accessible)
      */
     private void updateMotionProfileStatus() {
         if (this.timeMPStatusLastRead < Clock.currentTimeMillis()) {
@@ -900,7 +900,7 @@ public class SparkWrapper extends SmartMotorBase {
     /**
      * Does nothing, for there is no separate top-level buffer.
      *
-     * @see FPSTalon#processMotionProfileBuffer()
+     * See FPSTalon#processMotionProfileBuffer() (not publicly accessible)
      */
     protected void processMotionProfileBuffer() {
         return;
