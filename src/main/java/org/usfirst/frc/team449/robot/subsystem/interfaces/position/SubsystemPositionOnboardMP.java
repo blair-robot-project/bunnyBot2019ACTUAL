@@ -7,9 +7,10 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import org.jetbrains.annotations.NotNull;
 import org.usfirst.frc.team449.robot.components.PathGenerator;
-import org.usfirst.frc.team449.robot.generalInterfaces.smartMotor.SmartMotorBase;
+import org.usfirst.frc.team449.robot.generalInterfaces.smartMotor.SmartMotor;
 import org.usfirst.frc.team449.robot.generalInterfaces.updatable.Updatable;
 import org.usfirst.frc.team449.robot.other.MotionProfileData;
+import org.usfirst.frc.team449.robot.generalInterfaces.smartMotor.SmartMotorBase;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.SubsystemMP;
 
 /**

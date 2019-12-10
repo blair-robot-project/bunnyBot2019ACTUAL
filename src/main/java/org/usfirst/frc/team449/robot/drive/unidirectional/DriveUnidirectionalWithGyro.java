@@ -25,13 +25,13 @@ public class DriveUnidirectionalWithGyro extends Subsystem implements SubsystemA
         Loggable, SubsystemMPTwoSides, SubsystemMPManualTwoSides{
 
     /**
-     * Right master SmartMotorController
+     * Right master SmartMotor
      */
     @NotNull
     protected final SmartMotorBase rightMaster;
 
     /**
-     * Left master SmartMotorController
+     * Left master SmartMotor
      */
     @NotNull
     protected final SmartMotorBase leftMaster;

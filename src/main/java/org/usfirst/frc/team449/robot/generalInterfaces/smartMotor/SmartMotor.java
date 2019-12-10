@@ -138,6 +138,14 @@ public interface SmartMotor extends SimpleMotor, Shiftable, Loggable {
     void holdPositionMP();
 
     /**
+     * Command the motor to achieve a given position, velocity, and acceleration.
+     * @param pos The desired position in feet.
+     * @param vel The desired velocity in feet/second.
+     * @param acc The desired velocity in feet/second^2.
+     */
+    void executeMPPoint(double pos, double vel, double acc);
+
+    /**
      * Disables the motorController and loads the given profile into the motorController.
      *
      * @param data The profile to load.

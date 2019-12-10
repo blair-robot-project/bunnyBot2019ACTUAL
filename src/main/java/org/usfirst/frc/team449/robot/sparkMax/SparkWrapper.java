@@ -1,7 +1,6 @@
 package org.usfirst.frc.team449.robot.sparkMax;
 
 import com.ctre.phoenix.motion.MotionProfileStatus;
-import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -44,13 +43,13 @@ public class SparkWrapper extends SmartMotorBase {
      * overcurrent, or not at all. Putting it at 0 because
      * the motorController's peak current limit had a timeout of 0 ms
      */
-    private static final int chopCycles = 0;
+    private static final int chopCycles = 1;
 
     /**
      * The SPARK-MAX that this class is a wrapper on
      */
 //	@NotNull
-    protected final SparkMaxMotorController canSpark;
+    protected final SparkWithMP canSpark;
     /**
      * Forward limit switch
      */
@@ -61,7 +60,7 @@ public class SparkWrapper extends SmartMotorBase {
     protected final CANDigitalInput revLimitSwitch;
 
     /**
-     * A cache for the results of querying status using {@link SparkMaxMotorController#getMotionProfileStatus(MotionProfileStatus)}.
+     * A cache for the results of querying status using {@link SparkWithMP#getMotionProfileStatus(MotionProfileStatus)}.
      */
     @NotNull
     private final MotionProfileStatus motionProfileStatus;
@@ -170,7 +169,7 @@ public class SparkWrapper extends SmartMotorBase {
             FPSTalon forwards its port argument to the single-parameter TalonSRX constructor,
             which ORs it with 0x02040000 to obtain a final arb ID.
          */
-        this.canSpark = new SparkMaxMotorController(port, CANSparkMaxLowLevel.MotorType.kBrushless);
+        this.canSpark = new SparkWithMP(port, CANSparkMaxLowLevel.MotorType.kBrushless);
 
         //Set this to false because we only use reverseOutput for slaves.
         this.canSpark.setInverted(reverseOutput);
@@ -198,12 +197,12 @@ public class SparkWrapper extends SmartMotorBase {
         //If given no gear settings, use the default values.
         if (perGearSettings == null || perGearSettings.size() == 0) {
             this.perGearSettings.put(0, new PerGearSettings());
-            this.perGearSettings.get(0).getFeedForwardComponent();
+            this.perGearSettings.get(0).getFeedForwardComponent().setMotorController(this);
         }
         //Otherwise, map the settings to the gear they are.
         else {
             for (final PerGearSettings settings : perGearSettings) {
-                settings.getFeedForwardComponent();
+                settings.getFeedForwardComponent().setMotorController(this);
                 this.perGearSettings.put(settings.getGear(), settings);
             }
         }
@@ -353,7 +352,7 @@ public class SparkWrapper extends SmartMotorBase {
 
         this.setpoint = percentVoltage;
 
-        this.canSpark.set(ControlType.kVoltage, percentVoltage);
+        this.canSpark.setReference(ControlType.kVoltage, percentVoltage);
     }
 
     /**
@@ -530,7 +529,7 @@ public class SparkWrapper extends SmartMotorBase {
         } else {
             this.canSpark.getPIDController().setFF(1023. / 12. / this.nativeSetpoint * this.currentGearSettings.getFeedForwardComponent().applyAsDouble(feet), 0);
             this.canSpark.getPIDController().setReference(this.nativeSetpoint, ControlType.kPosition);
-            this.canSpark.set(ControlType.kPosition, this.nativeSetpoint);
+            this.canSpark.setReference(ControlType.kPosition, this.nativeSetpoint);
         }
     }
 
@@ -567,7 +566,7 @@ public class SparkWrapper extends SmartMotorBase {
         this.nativeSetpoint = this.FPSToEncoder(velocity);
         this.canSpark.getPIDController().setFF(1023. / 12. / this.nativeSetpoint * this.currentGearSettings.getFeedForwardComponent().applyAsDouble(velocity), 0);
         this.setpoint = velocity;
-        this.canSpark.set(ControlType.kVelocity, this.nativeSetpoint);
+        this.canSpark.setReference(ControlType.kVelocity, this.nativeSetpoint);
     }
 
     /**
@@ -607,7 +606,7 @@ public class SparkWrapper extends SmartMotorBase {
         // so I think it's okay to leave it unimplemented for now in case this isn't correct.
         /** Either way, this is the implementation of {@link BaseMotorController#getMotorOutputVoltage()} */
         // This assumes that setpoint is the output voltage percent.
-        return this.getSetpoint() * this.getBatteryVoltage();
+        return this.setpoint * this.getBatteryVoltage();
     }
 
     /**
@@ -634,7 +633,7 @@ public class SparkWrapper extends SmartMotorBase {
      * @return Control mode as a string.
      */
     public String getControlMode() {
-        return String.valueOf(this.canSpark.getControlMode());
+        return String.valueOf(this.canSpark.getControlType());
     }
 
     /**
@@ -714,8 +713,8 @@ public class SparkWrapper extends SmartMotorBase {
     /**
      * A private utility method for updating motionProfileStatus with the current motion profile status. Makes sure that
      * the status is only gotten once per tick, to avoid CAN traffic overload.
-     *
-     * @see FPSTalon#updateMotionProfileStatus()
+     * <p>
+     * Analogous to FPSTalon#updateMotionProfileStatus() (not publicly accessible)
      */
     private void updateMotionProfileStatus() {
         if (this.timeMPStatusLastRead < Clock.currentTimeMillis()) {
@@ -748,6 +747,7 @@ public class SparkWrapper extends SmartMotorBase {
      * Reset all MP-related stuff, including all points loaded in both the API and bottom-level buffers.
      */
     private void clearMP() {
+        this.executorNotifier.stop();
         this.canSpark.clearMotionProfileHasUnderrun(0);
         this.canSpark.clearMotionProfileTrajectories();
     }
@@ -756,46 +756,46 @@ public class SparkWrapper extends SmartMotorBase {
      * Starts running the loaded motion profile.
      */
     public void startRunningMP() {
-        this.canSpark.set(ControlType.kSmartMotion, SetValueMotionProfile.Enable.value);
+        this.executorNotifier.startPeriodic(this.updaterProcessPeriodSecs);
     }
 
     @Override
     public void holdPositionMP() {
-        throw new UnsupportedOperationException();
+        // Set the target position to be the current position.
+        this.canSpark.setReference(ControlType.kPosition, this.encoder.getPosition());
+    }
+
+    @Override
+    public void executeMPPoint(double pos, double vel, double acc) {
+        this.canSpark.setPointReference(pos, vel, acc);
     }
 
     /**
-     * Disables the motorController and loads the given profile into the motorController.
+     * Disables the controller and loads the given profile.
      *
      * @param data The profile to load.
      */
     public void loadProfile(final MotionProfileData data) {
         this.executorNotifier.stop();
+
         //Reset the Spark
         this.disable();
         this.clearMP();
 
         // TODO: (this code was copied from FPSTalon) This doesn't make sense. Primitives are located on the stack.
-        // TODO: The variable is also never assigned to. What's up with this?
         //Declare this out here to avoid garbage collection
         double feedforward;
 
         //Set proper PID constants
-        if (data.isBackwards()) {
-            if (data.isVelocityOnly()) {
-                this.canSpark.getPIDController().setP(0, 1);
-                this.canSpark.getPIDController().setI(0, 1);
-                this.canSpark.getPIDController().setD(0, 1);
-            } else {
+        if (data.isVelocityOnly()) {
+            this.canSpark.getPIDController().setP(0, 1);
+            this.canSpark.getPIDController().setI(0, 1);
+            this.canSpark.getPIDController().setD(0, 1);
+        } else {
+            if (data.isBackwards()) {
                 this.canSpark.getPIDController().setP(this.currentGearSettings.getMotionProfilePRev(), 1);
                 this.canSpark.getPIDController().setI(this.currentGearSettings.getMotionProfileIRev(), 1);
                 this.canSpark.getPIDController().setD(this.currentGearSettings.getMotionProfileDRev(), 1);
-            }
-        } else {
-            if (data.isVelocityOnly()) {
-                this.canSpark.getPIDController().setP(0, 1);
-                this.canSpark.getPIDController().setI(0, 1);
-                this.canSpark.getPIDController().setD(0, 1);
             } else {
                 this.canSpark.getPIDController().setP(this.currentGearSettings.getMotionProfilePFwd(), 1);
                 this.canSpark.getPIDController().setI(this.currentGearSettings.getMotionProfileIFwd(), 1);
@@ -837,11 +837,9 @@ public class SparkWrapper extends SmartMotorBase {
             point.isLastPoint = (i + 1) == data.getData().length; // If it's the last point, isLastPoint = true
 
             // Send the point to the Spark's buffer
-            this.canSpark.pushMotionProfileTrajectory(point);
+            this.canSpark.pushMPPoint(point);
         }
-        this.executorNotifier.startPeriodic(this.updaterProcessPeriodSecs);
     }
-
 
     /**
      * Get the headers for the data this subsystem logs every loop.
@@ -902,7 +900,7 @@ public class SparkWrapper extends SmartMotorBase {
     /**
      * Does nothing, for there is no separate top-level buffer.
      *
-     * @see FPSTalon#processMotionProfileBuffer()
+     * See FPSTalon#processMotionProfileBuffer() (not publicly accessible)
      */
     protected void processMotionProfileBuffer() {
         return;
@@ -911,7 +909,7 @@ public class SparkWrapper extends SmartMotorBase {
 //    /**
 //     * An object representing the canSpark settings that are different for each gear.
 //     */
-//    protected static class PerGearSettings extends SmartMotorControllerBase.PerGearSettings {
+//    protected static class PerGearSettings extends SmartMotorBase.PerGearSettings {
 //
 //        /**
 //         * The gear number this is the settings for.

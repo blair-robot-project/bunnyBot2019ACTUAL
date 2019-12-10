@@ -843,6 +843,7 @@ public class FPSTalon extends SmartMotorBase implements SmartMotor, SimpleMotor,
      * @param vel The desired velocity in feet/second.
      * @param acc The desired velocity in feet/second^2.
      */
+    @Override
     public void executeMPPoint(double pos, double vel, double acc) {
         setpoint = pos;
         setPositionPID();
