@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
 import com.revrobotics.CANError;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -32,6 +33,7 @@ public class SparkWithMP extends CANSparkMax {
     /**
      * @see BaseMotorController#getControlMode()
      */
+    @Contract(pure = true)
     public ControlType getControlType() {
         return this.controlType;
     }
@@ -71,13 +73,13 @@ public class SparkWithMP extends CANSparkMax {
         this.controlType = mode;
     }
 
-    public void setPointReference(double pos, double vel, double acc) {
+    public void setPointReference(final double pos, final double vel, final double acc) {
         this.setReference(ControlType.kSmartMotion, pos);
         this.getPIDController().setSmartMotionMaxVelocity(vel, 0); // TODO This must be changed if we have slot-switching
         this.getPIDController().setSmartMotionMaxAccel(acc, 0);
     }
 
-    public void setPointReference(TrajectoryPoint point) {
+    public void setPointReference(final TrajectoryPoint point) {
         this.setPointReference(point.position, point.velocity, 0);
     }
 
@@ -106,6 +108,7 @@ public class SparkWithMP extends CANSparkMax {
         return CANError.kOk;
     }
 
+    @Contract(pure = true)
     public int getMotionProfileTopLevelBufferCount() {
         return this.pointQueue.size();
     }
@@ -113,7 +116,7 @@ public class SparkWithMP extends CANSparkMax {
     /**
      * Trajectory points (called the buffer by CTRE)
      */
-    private Queue<TrajectoryPoint> pointQueue = new ConcurrentLinkedQueue<>();
+    private final Queue<TrajectoryPoint> pointQueue = new ConcurrentLinkedQueue<>();
 
     /**
      * Set if {@code isUnderrun} ever gets set. Only is cleared by
@@ -164,10 +167,12 @@ public class SparkWithMP extends CANSparkMax {
     /**
      * The number of available empty slots in the trajectory buffer.
      */
+    @Contract(pure = true)
     public int getBufferRemaining() {
-        return MotionProfileBufferCapacity - this.getMotionProfileTopLevelBufferCount();
+        return SparkWithMP.MotionProfileBufferCapacity - this.getMotionProfileTopLevelBufferCount();
     }
 
+    @Contract(pure = true)
     public boolean hasUnderrun() {
         return this.hasUnderrun;
     }
@@ -177,6 +182,7 @@ public class SparkWithMP extends CANSparkMax {
      * active trajectory point however the buffer is empty. This gets cleared
      * automatically when is resolved.
      */
+    @Contract(pure = true)
     public boolean isUnderrun() {
         return this.isUnderrun;
     }
@@ -184,10 +190,12 @@ public class SparkWithMP extends CANSparkMax {
     /**
      * True if the active trajectory point is the last point of the profile.
      */
+    @Contract(pure = true)
     public boolean isLast() {
         return !this.pointQueue.isEmpty() && this.pointQueue.peek().isLastPoint;
     }
 
+    @Contract(pure = true)
     public void copyStatusTo(final MotionProfileStatus statusToFill) {
         statusToFill.topBufferRem = this.getBufferRemaining();
         statusToFill.topBufferCnt = this.getMotionProfileTopLevelBufferCount();
@@ -202,10 +210,12 @@ public class SparkWithMP extends CANSparkMax {
      * True if the active trajectory point is not empty, false otherwise. The
      * members in activePoint are only valid if this signal is set.
      */
+    @Contract(pure = true)
     public boolean isActivePointValid() {
         return !this.isUnderrun(); // TODO: Actually whether the point is empty.
     }
 
+    @Contract(pure = true)
     public TrajectoryPoint activePoint() {
         return this.activePoint;
     }
@@ -213,6 +223,7 @@ public class SparkWithMP extends CANSparkMax {
     /**
      * The duration in ms of the current trajectory point.
      */
+    @Contract(pure = true)
     public int getTimeDurMs() {
         return this.basePointDuration + this.activePoint().timeDur;
     }
@@ -233,6 +244,7 @@ public class SparkWithMP extends CANSparkMax {
         }
     }
 
+    @Contract(pure = true)
     private boolean activePointShouldBeConsumed() {
         // Always if we're underrun.
         if (!this.isActivePointValid()) return true;
