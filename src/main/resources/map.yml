@@ -88,10 +88,10 @@ logger:
             statusFrameRatesMillis: !!map
               Status_4_AinTempVbat: 15
             slaveVictors:
-            - port: 2
-              invertType: FollowMaster
-            - port: 3
-              invertType: FollowMaster
+              - port: 2
+                invertType: FollowMaster
+              - port: 3
+                invertType: FollowMaster
         rightMaster:
           org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
             <<: *leftMaster
@@ -503,75 +503,75 @@ teleopStartupCommand:
 #                inverted: false
 #                rumbleAmount: 0.5
 buttons:
-    - button:
-        org.usfirst.frc.team449.robot.oi.buttons.dPadButton:
-          '@id': forceLowGear
-          joystick:
-            org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
-              '@id': mechanismsGamepad
-              port: 2
-          angle: 180
+  - button:
+      org.usfirst.frc.team449.robot.oi.buttons.dPadButton:
+        '@id': forceLowGear
+        joystick:
+          org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+            '@id': mechanismsGamepad
+            port: 2
+        angle: 180
+    command:
+      org.usfirst.frc.team449.robot.commands.general.CommandSequence:
+        '@id': overrideAndShift
+        commandList:
+          - org.usfirst.frc.team449.robot.drive.shifting.commands.OverrideAutoShift:
+              '@id': overrideAutoshift
+              drive:
+                org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
+                  drive
+              override: true
+          - org.usfirst.frc.team449.robot.generalInterfaces.shiftable.commands.SwitchToLowGear:
+              '@id': downshift
+              subsystem:
+                org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
+                  drive
+    action: WHEN_PRESSED
+  - button:
+      org.usfirst.frc.team449.robot.oi.buttons.dPadButton:
+        forceLowGear
+    command:
+      org.usfirst.frc.team449.robot.drive.shifting.commands.OverrideAutoShift:
+        '@id': unoverrideAutoshift
+        drive:
+          org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
+            drive
+        override: false
+    action: WHEN_RELEASED
+  - button:
+      org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+        '@id': sparkTest
+        joystick:
+          org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+            driverGamepad
+          buttonNumber: 1
       command:
         org.usfirst.frc.team449.robot.commands.general.CommandSequence:
-          '@id': overrideAndShift
+          '@id': switchHeightRaiseIntake
           commandList:
-            - org.usfirst.frc.team449.robot.drive.shifting.commands.OverrideAutoShift:
-                '@id': overrideAutoshift
-                drive:
-                  org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
-                    drive
-                override: true
-            - org.usfirst.frc.team449.robot.generalInterfaces.shiftable.commands.SwitchToLowGear:
-                '@id': downshift
+            - org.usfirst.frc.team449.robot.subsystem.interfaces.position.commands.GoToPosition:
+                '@id': goToSwitchHeight
                 subsystem:
-                  org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
-                    drive
-      action: WHEN_PRESSED
-    - button:
-        org.usfirst.frc.team449.robot.oi.buttons.dPadButton:
-          forceLowGear
-      command:
-        org.usfirst.frc.team449.robot.drive.shifting.commands.OverrideAutoShift:
-          '@id': unoverrideAutoshift
-          drive:
-            org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
-              drive
-          override: false
-      action: WHEN_RELEASED
-    - button:
-        org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
-            '@id': sparkTest
-            joystick:
-              org.usfirst.team449.robot.jacksonWrapper.MappedJoystick:
-                driverGamepad
-              buttonNumber: 1
-        command:
-          org.usfirst.frc.team449.robot.commands.general.CommandSequence:
-            '@id': switchHeightRaiseIntake
-            commandList:
-              - org.usfirst.frc.team449.robot.subsystem.interfaces.position.commands.GoToPosition:
-                  '@id': goToSwitchHeight
-                  subsystem:
-                    org.usfirst.frc.team449.robot.subsystem.interfaces.position.SubsystemPositionOnboardMP:
-                      '@id': elevator
-                      talon:
-                        org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-                          elevatorTalon
-                      pathGenerator:
-                        '@id': pathGenerator
-                        fwdMaxVel: 4
-                        revMaxVel: 6
-                        maxAccel: 6
-                        deltaTimeSecs: 0.05
-                  setpoint: 2.75
-              - org.usfirst.frc.team449.robot.commands.multiInterface.MovePistonAndRunIntake:
-                  '@id': liftSideswipeManual2
-                  subsystem:
-                    org.usfirst.frc.team449.robot.subsystem.complex.intake.IntakeActuatedTwoSides:
-                      intake
-                  pistonPos: kReverse
-                  intakeMode: "OFF"
-          action: WHEN_PRESSED
+                  org.usfirst.frc.team449.robot.subsystem.interfaces.position.SubsystemPositionOnboardMP:
+                    '@id': elevator
+                    talon:
+                      org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+                        elevatorTalon
+                    pathGenerator:
+                      '@id': pathGenerator
+                      fwdMaxVel: 4
+                      revMaxVel: 6
+                      maxAccel: 6
+                      deltaTimeSecs: 0.05
+                setpoint: 2.75
+            - org.usfirst.frc.team449.robot.commands.multiInterface.MovePistonAndRunIntake:
+                '@id': liftSideswipeManual2
+                subsystem:
+                  org.usfirst.frc.team449.robot.subsystem.complex.intake.IntakeActuatedTwoSides:
+                    intake
+                pistonPos: kReverse
+                intakeMode: "OFF"
+        action: WHEN_PRESSED
 
 
 autoStartupCommand:
