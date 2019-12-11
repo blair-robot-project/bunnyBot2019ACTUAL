@@ -9,9 +9,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.usfirst.frc.team449.robot.other.Clock;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -24,7 +23,7 @@ public class SparkWithMP extends CANSparkMax {
 
     private boolean isUnderrun;
     private TrajectoryPoint activePoint;
-    private Instant activePointActivationTime;
+    private long activePointActivationTime;
 
     SparkWithMP(final int deviceID, final MotorType type) {
         super(deviceID, type);
@@ -240,7 +239,7 @@ public class SparkWithMP extends CANSparkMax {
         this.hasUnderrun |= (this.isUnderrun = newActivePoint == null);
         if (!this.hasUnderrun) {
             this.setPointReference(this.activePoint());
-            this.activePointActivationTime = Instant.now();
+            this.activePointActivationTime = Clock.currentTimeMillis();
         }
     }
 
@@ -250,6 +249,6 @@ public class SparkWithMP extends CANSparkMax {
         if (!this.isActivePointValid()) return true;
 
         // Check if the current point has been running for its target duration.
-        return this.getTimeDurMs() >= Instant.now().until(this.activePointActivationTime, ChronoUnit.MILLIS);
+        return this.getTimeDurMs() >= Clock.currentTimeMillis() - this.activePointActivationTime;
     }
 }
