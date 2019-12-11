@@ -798,7 +798,7 @@ public class SparkWrapper extends SmartMotorBase {
         this.disable();
         this.clearMP();
 
-        // TODO: (this code was copied from FPSTalon) This doesn't make sense. Primitives are located on the stack.
+        // TODO: (this code was copied from FPSTalon) This doesn't make sense since primitives are located on the stack.
         //Declare this out here to avoid garbage collection
         double feedforward;
 
@@ -902,7 +902,7 @@ public class SparkWrapper extends SmartMotorBase {
                 this.getOutputCurrent(),
                 this.getControlMode(),
                 this.getGear(),
-                -this.voltagePerCurrentLinReg.getSlope()
+                this.voltagePerCurrentLinReg == null ? null : -this.voltagePerCurrentLinReg.getSlope()
         };
     }
 
