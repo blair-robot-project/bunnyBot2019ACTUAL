@@ -10,6 +10,7 @@ import com.revrobotics.ControlType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.usfirst.frc.team449.robot.other.Clock;
+import org.usfirst.frc.team449.robot.other.Logger;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -68,6 +69,7 @@ public class SparkWithMP extends CANSparkMax {
      * @see BaseMotorController#set(com.ctre.phoenix.motorcontrol.ControlMode, double, double)
      */
     public void setReference(final ControlType mode, final double outputValue) {
+        Logger.addEvent("setReference: mode=" + mode + " value=" + outputValue, this.getClass());
         this.getPIDController().setReference(outputValue, mode);
         this.controlType = mode;
     }
