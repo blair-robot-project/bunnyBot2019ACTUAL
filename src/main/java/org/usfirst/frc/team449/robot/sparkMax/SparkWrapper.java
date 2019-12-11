@@ -573,7 +573,7 @@ public class SparkWrapper extends SmartMotorBase {
     }
 
     /**
-     * Get the current closed-loop velocity error in FPS. WARNING: will give garbage if not in velocity mode.
+     * Get the current closed-loop velocity error in FPS. WARNING: will give garbage if not in VELOCITY mode.
      *
      * @return The closed-loop error in FPS, or null if no encoder CPR was given.
      */
@@ -585,7 +585,7 @@ public class SparkWrapper extends SmartMotorBase {
     }
 
     /**
-     * Get the current velocity setpoint of the Spark in FPS. WARNING: will give garbage if not in velocity mode.
+     * Get the current velocity setpoint of the Spark in FPS. WARNING: will give garbage if not in VELOCITY mode.
      *
      * @return The closed-loop velocity setpoint in FPS, or null if no encoder CPR was given.
      */
@@ -596,23 +596,27 @@ public class SparkWrapper extends SmartMotorBase {
     }
 
     /**
-     * Get the voltage the Spark is currently drawing from the PDP.
+     * Get the voltage the Spark is currently supplying. WARNING: will give garbage if not in VOLTAGE mode.
      *
      * @return Voltage in volts.
      */
     @Contract(pure = true)
     public double getOutputVoltage() {
-        // This is actually the output duty cycle.
-        //return canSpark.getAppliedOutput();
-
-        /** Implementation in {@link org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon#getOutputVoltage()}: */
-        //return canTalon.getMotorOutputVoltage().
-
         // This method is only used in the current limiter for the climber and in logging methods,
         // so I think it's okay to leave it unimplemented for now in case this isn't correct.
         /** Either way, this is the implementation of {@link BaseMotorController#getMotorOutputVoltage()} */
         // This assumes that setpoint is the output voltage percent.
         return this.setpoint * this.getBatteryVoltage();
+    }
+
+    /**
+     * Get the duty cycle with which the Spark is currently outputting.
+     *
+     * @return the fraction of each PWM cycle that the Spark is supplying voltage.
+     */
+    @Contract(pure = true)
+    public double getOutputDutyCycle() {
+        return this.canSpark.getAppliedOutput();
     }
 
     /**
