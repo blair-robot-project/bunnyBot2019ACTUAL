@@ -71,6 +71,14 @@ clean {
     delete protobuf.generatedFilesBaseDir
 }
 
+eclipse {
+    classpath {
+        file.beforeMerged { cp ->
+            cp.entries.add( new org.gradle.plugins.ide.eclipse.model.SourceFolder('gen/main/java', null) )
+        }
+    }
+}
+
 idea {
     module {
         sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java")
