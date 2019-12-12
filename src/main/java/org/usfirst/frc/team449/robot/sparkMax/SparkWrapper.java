@@ -359,6 +359,7 @@ public class SparkWrapper extends SmartMotorBase {
      * @return The gear this subsystem is currently in.
      */
     @Override
+    @Contract(pure = true)
     public int getGear() {
         return this.currentGearSettings.getGear();
     }
@@ -371,8 +372,7 @@ public class SparkWrapper extends SmartMotorBase {
     @Override
     public void setGear(final int gear) {
         //Set the current gear
-        final Map<Integer, PerGearSettings> map = this.perGearSettings;
-        this.currentGearSettings = this.perGearSettings.<PerGearSettings>get(gear);
+        this.currentGearSettings = this.perGearSettings.get(gear);
 
         //Set max voltage
         //todo I am fairly sure this is the right method, but I'm not totally sure
@@ -422,6 +422,7 @@ public class SparkWrapper extends SmartMotorBase {
      * @return That distance in feet, or null if no encoder CPR was given.
      */
     @Nullable
+    @Contract(pure = true)
     protected Double encoderToFeet(final double nativeUnits) {
         if (this.encoderCPR == null) {
             return null;
@@ -437,6 +438,7 @@ public class SparkWrapper extends SmartMotorBase {
      * @return That distance in native units as measured by the encoder, or null if no encoder CPR was given.
      */
     @Nullable
+    @Contract(pure = true)
     protected Double feetToEncoder(final double feet) {
         if (this.encoderCPR == null) {
             return null;
@@ -456,6 +458,7 @@ public class SparkWrapper extends SmartMotorBase {
      * was given.
      */
     @Nullable
+    @Contract(pure = true)
     protected Double encoderToFPS(final double encoderReading) {
         this.RPS = this.nativeToRPS(encoderReading);
         if (this.RPS == null) {
@@ -483,8 +486,8 @@ public class SparkWrapper extends SmartMotorBase {
      * @param nat A velocity in canSpark native units.
      * @return That velocity in RPS, or null if no encoder CPR was given.
      */
-    @Contract(pure = true)
     @Nullable
+    @Contract(pure = true)
     private Double nativeToRPS(final double nat) {
         if (this.encoderCPR == null) {
             return null;
@@ -499,8 +502,8 @@ public class SparkWrapper extends SmartMotorBase {
      * @param RPS The RPS velocity you want to convert.
      * @return That velocity in canSpark native units, or null if no encoder CPR was given.
      */
-    @Contract(pure = true)
     @Nullable
+    @Contract(pure = true)
     private Double RPSToNative(final double RPS) {
         if (this.encoderCPR == null) {
             return null;
@@ -525,10 +528,9 @@ public class SparkWrapper extends SmartMotorBase {
         if (this.currentGearSettings.getMotionMagicMaxVel() != null) {
             // We don't know the setpoint for motion magic so we can't do fancy F stuff.
             this.canSpark.getPIDController().setFF(0, 0);
-            this.canSpark.getPIDController().setReference(this.nativeSetpoint, ControlType.kSmartMotion);
+            this.canSpark.setReference(ControlType.kSmartMotion, nativeSetpoint);
         } else {
             this.canSpark.getPIDController().setFF(1023. / 12. / this.nativeSetpoint * this.currentGearSettings.getFeedForwardComponent().applyAsDouble(feet), 0);
-            this.canSpark.getPIDController().setReference(this.nativeSetpoint, ControlType.kPosition);
             this.canSpark.setReference(ControlType.kPosition, this.nativeSetpoint);
         }
     }
@@ -539,6 +541,7 @@ public class SparkWrapper extends SmartMotorBase {
      * @return The canSpark's velocity in FPS, or null if no encoder CPR was given.
      */
     @Nullable
+    @Contract(pure = true)
     public Double getVelocity() {
         return this.encoderToFPS(this.canSpark.getEncoder().getVelocity());
     }
@@ -570,38 +573,35 @@ public class SparkWrapper extends SmartMotorBase {
     }
 
     /**
-     * Get the current closed-loop velocity error in FPS. WARNING: will give garbage if not in velocity mode.
+     * Get the current closed-loop velocity error in FPS. WARNING: will give garbage if not in VELOCITY mode.
      *
      * @return The closed-loop error in FPS, or null if no encoder CPR was given.
      */
     @Nullable
+    @Contract(pure = true)
     public Double getError() {
         return this.encoderToFPS(this.canSpark.getPIDController().
                 getSmartMotionAllowedClosedLoopError(0));
     }
 
     /**
-     * Get the current velocity setpoint of the Spark in FPS. WARNING: will give garbage if not in velocity mode.
+     * Get the current velocity setpoint of the Spark in FPS. WARNING: will give garbage if not in VELOCITY mode.
      *
      * @return The closed-loop velocity setpoint in FPS, or null if no encoder CPR was given.
      */
     @Nullable
+    @Contract(pure = true)
     public Double getSetpoint() {
         return this.setpoint;
     }
 
     /**
-     * Get the voltage the Spark is currently drawing from the PDP.
+     * Get the voltage the Spark is currently supplying. WARNING: will give garbage if not in VOLTAGE mode.
      *
      * @return Voltage in volts.
      */
+    @Contract(pure = true)
     public double getOutputVoltage() {
-        // This is actually the output duty cycle.
-        //return canSpark.getAppliedOutput();
-
-        /** Implementation in {@link org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon#getOutputVoltage()}: */
-        //return canTalon.getMotorOutputVoltage().
-
         // This method is only used in the current limiter for the climber and in logging methods,
         // so I think it's okay to leave it unimplemented for now in case this isn't correct.
         /** Either way, this is the implementation of {@link BaseMotorController#getMotorOutputVoltage()} */
@@ -610,10 +610,21 @@ public class SparkWrapper extends SmartMotorBase {
     }
 
     /**
+     * Get the duty cycle with which the Spark is currently outputting.
+     *
+     * @return the fraction of each PWM cycle that the Spark is supplying voltage.
+     */
+    @Contract(pure = true)
+    public double getOutputDutyCycle() {
+        return this.canSpark.getAppliedOutput();
+    }
+
+    /**
      * Get the voltage available for the Spark.
      *
      * @return Voltage in volts.
      */
+    @Contract(pure = true)
     public double getBatteryVoltage() {
         return this.canSpark.getBusVoltage();
     }
@@ -623,6 +634,7 @@ public class SparkWrapper extends SmartMotorBase {
      *
      * @return Current in amps.
      */
+    @Contract(pure = true)
     public double getOutputCurrent() {
         return this.canSpark.getOutputCurrent();
     }
@@ -632,6 +644,7 @@ public class SparkWrapper extends SmartMotorBase {
      *
      * @return Control mode as a string.
      */
+    @Contract(pure = true)
     public String getControlMode() {
         return String.valueOf(this.canSpark.getControlType());
     }
@@ -679,6 +692,7 @@ public class SparkWrapper extends SmartMotorBase {
     /**
      * @return the position of the motorController in feet, or null if inches per rotation wasn't given.
      */
+    @Contract(pure = true)
     public Double getPositionFeet() {
         return this.encoderToFeet(this.encoder.getPosition());
     }
@@ -695,6 +709,7 @@ public class SparkWrapper extends SmartMotorBase {
      *
      * @return {@literal true} if the forwards limit switch is closed; {@literal false} if it's open or doesn't exist.
      */
+    @Contract(pure = true)
     public boolean getFwdLimitSwitch() {
         /** {@link CANDigitalInput#get()} also matches the behavior of {@link com.ctre.phoenix.motorcontrol.SensorCollection#isFwdLimitSwitchClosed()} in
          * ignoring whether it is enabled. */
@@ -706,6 +721,7 @@ public class SparkWrapper extends SmartMotorBase {
      *
      * @return True if the reverse limit switch is closed, false if it's open or doesn't exist.
      */
+    @Contract(pure = true)
     public boolean getRevLimitSwitch() {
         return this.revLimitSwitchNormallyOpen == this.revLimitSwitch.get();
     }
@@ -782,7 +798,7 @@ public class SparkWrapper extends SmartMotorBase {
         this.disable();
         this.clearMP();
 
-        // TODO: (this code was copied from FPSTalon) This doesn't make sense. Primitives are located on the stack.
+        // TODO: (this code was copied from FPSTalon) This doesn't make sense since primitives are located on the stack.
         //Declare this out here to avoid garbage collection
         double feedforward;
 
@@ -848,6 +864,7 @@ public class SparkWrapper extends SmartMotorBase {
      */
     @NotNull
     @Override
+    @Contract(pure = true)
     public String[] getHeader() {
         return new String[] {
                 "velocity",
@@ -868,10 +885,13 @@ public class SparkWrapper extends SmartMotorBase {
      *
      * @return An N-length array of Objects, where N is the number of labels given by getHeader.
      */
-    @NotNull
+    @Nullable
     @Override
+    @Contract(pure = true)
     public Object[] getData() {
-        this.voltagePerCurrentLinReg.addPoint(this.getOutputCurrent(), this.PDP.getVoltage() - this.getBatteryVoltage());
+        if (this.voltagePerCurrentLinReg != null && this.PDP != null) {
+            this.voltagePerCurrentLinReg.addPoint(this.getOutputCurrent(), this.PDP.getVoltage() - this.getBatteryVoltage());
+        }
         return new Object[] {
                 this.getVelocity(),
                 this.getPositionFeet(),
@@ -882,7 +902,7 @@ public class SparkWrapper extends SmartMotorBase {
                 this.getOutputCurrent(),
                 this.getControlMode(),
                 this.getGear(),
-                -this.voltagePerCurrentLinReg.getSlope()
+                this.voltagePerCurrentLinReg == null ? null : -this.voltagePerCurrentLinReg.getSlope()
         };
     }
 
@@ -893,15 +913,17 @@ public class SparkWrapper extends SmartMotorBase {
      */
     @NotNull
     @Override
+    @Contract(pure = true)
     public String getLogName() {
         return this.name;
     }
 
     /**
      * Does nothing, for there is no separate top-level buffer.
-     *
+     * <p>
      * See FPSTalon#processMotionProfileBuffer() (not publicly accessible)
      */
+    @Contract(pure = true)
     protected void processMotionProfileBuffer() {
         return;
     }
