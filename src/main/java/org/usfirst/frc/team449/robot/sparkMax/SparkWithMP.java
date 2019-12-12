@@ -70,6 +70,7 @@ public class SparkWithMP extends CANSparkMax {
      */
     public void setReference(final ControlType mode, final double outputValue) {
         Logger.addEvent("setReference: mode=" + mode + " value=" + outputValue, this.getClass());
+        System.out.println("setReference: mode=" + mode + " value=" + outputValue);
         this.getPIDController().setReference(outputValue, mode);
         this.controlType = mode;
     }

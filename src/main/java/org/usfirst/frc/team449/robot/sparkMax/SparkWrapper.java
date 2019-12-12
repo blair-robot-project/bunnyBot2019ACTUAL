@@ -352,6 +352,7 @@ public class SparkWrapper extends SmartMotorBase {
 
         this.setpoint = percentVoltage;
 
+        System.out.println("**************************************************************setpercentvoltage: " + percentVoltage);
         this.canSpark.setReference(ControlType.kVoltage, percentVoltage);
     }
 
@@ -553,6 +554,7 @@ public class SparkWrapper extends SmartMotorBase {
      */
     @Override
     public void setVelocity(final double velocity) {
+        System.out.println("**************************************************************setvelocity");
         if (this.currentGearSettings.getMaxSpeed() != null) {
             this.setVelocityFPS(velocity * this.currentGearSettings.getMaxSpeed());
         } else {
@@ -566,7 +568,7 @@ public class SparkWrapper extends SmartMotorBase {
      * @param velocity velocity setpoint in FPS.
      */
     protected void setVelocityFPS(final double velocity) {
-        this.nativeSetpoint = this.FPSToEncoder(velocity);
+        this.nativeSetpoint = defaultIfNull((this.FPSToEncoder(velocity)),0);
         this.canSpark.getPIDController().setFF(1023. / 12. / this.nativeSetpoint * this.currentGearSettings.getFeedForwardComponent().applyAsDouble(velocity), 0);
         this.setpoint = velocity;
         this.canSpark.setReference(ControlType.kVelocity, this.nativeSetpoint);
@@ -692,6 +694,7 @@ public class SparkWrapper extends SmartMotorBase {
     /**
      * @return the position of the motorController in feet, or null if inches per rotation wasn't given.
      */
+    @Nullable
     @Contract(pure = true)
     public Double getPositionFeet() {
         return this.encoderToFeet(this.encoder.getPosition());
@@ -822,7 +825,7 @@ public class SparkWrapper extends SmartMotorBase {
         this.canSpark.getPIDController().setFF(1023. / 12., 1);
 
         //Only call position getter once
-        final double startPosition = data.resetPosition() ? 0 : this.getPositionFeet();
+        final double startPosition = data.resetPosition() ? 0 : defaultIfNull(getPositionFeet(), 0);
 
         //Set point time
         this.canSpark.configMotionProfileTrajectoryPeriod(data.getPointTimeMillis(), 0);
@@ -837,7 +840,7 @@ public class SparkWrapper extends SmartMotorBase {
             point.profileSlotSelect0 = 1;        // gain selection, we always put MP gains in slot 1.
 
             // Set all the fields of the profile point
-            point.position = this.feetToEncoder(startPosition + (data.getData()[i][0] * (data.isBackwards() ? -1 : 1)));
+            point.position = defaultIfNull(this.feetToEncoder(startPosition + (data.getData()[i][0] * (data.isBackwards() ? -1 : 1))), 0);
 
             feedforward = this.currentGearSettings.getFeedForwardComponent().calcMPVoltage(data.getData()[i][0],
                     data.getData()[i][1], data.getData()[i][2]);

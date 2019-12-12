@@ -124,7 +124,7 @@ public class MotionProfileData {
             data[i][1] = vel.get(i) * invertMult;
             data[i][2] = accel.get(i) * invertMult;
             // Ignore angle
-            data[i][3] = 0;
+            // data[i][3] = 0;
         }
     }
 

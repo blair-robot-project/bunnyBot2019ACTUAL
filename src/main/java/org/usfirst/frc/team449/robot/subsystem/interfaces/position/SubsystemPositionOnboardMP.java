@@ -13,6 +13,8 @@ import org.usfirst.frc.team449.robot.other.MotionProfileData;
 import org.usfirst.frc.team449.robot.generalInterfaces.smartMotor.SmartMotorBase;
 import org.usfirst.frc.team449.robot.subsystem.interfaces.motionProfile.SubsystemMP;
 
+import static org.usfirst.frc.team449.robot.util.Util.defaultIfNull;
+
 /**
  * A SubsystemPosition that moves using motion profiles.
  */
@@ -72,8 +74,10 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
      */
     @Override
     public void setPositionSetpoint(double feet) {
+        System.out.println("###########################motorcontroller is null" +( motorController == null));
+        System.out.println("###########################pathgene is null" + (pathGenerator == null));
         disableMotor();
-        loadMotionProfile(pathGenerator.generateProfile(motorController.getPositionFeet(), motorController.getVelocity(), accel, feet));
+        loadMotionProfile(pathGenerator.generateProfile(defaultIfNull(motorController.getPositionFeet(),0), motorController.getVelocity() == null ? 0 : motorController.getVelocity(), accel, feet));
         shouldStartProfile = true;
     }
 
