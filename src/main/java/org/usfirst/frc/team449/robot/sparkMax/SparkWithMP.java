@@ -22,7 +22,7 @@ public class SparkWithMP extends CANSparkMax {
     private ControlType controlType;
     private int basePointDuration;
 
-    private boolean isUnderrun;
+    private boolean isUnderrun = true;
     private TrajectoryPoint activePoint;
     private long activePointActivationTime;
 
@@ -234,6 +234,7 @@ public class SparkWithMP extends CANSparkMax {
      * Moves on to the next point if the active point needs to be consumed.
      */
     public void processMotionProfile() {
+        System.out.println("SparkWithMP started MP");
         if (this.activePointShouldBeConsumed()) this.moveToNextPoint();
     }
 

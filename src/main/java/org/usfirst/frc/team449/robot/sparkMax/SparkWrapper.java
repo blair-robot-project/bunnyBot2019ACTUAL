@@ -775,6 +775,7 @@ public class SparkWrapper extends SmartMotorBase {
      * Starts running the loaded motion profile.
      */
     public void startRunningMP() {
+        System.out.println("SparkWrapper Started MP");
         this.executorNotifier.startPeriodic(this.updaterProcessPeriodSecs);
     }
 

@@ -169,6 +169,9 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
      */
     @Override
     public void periodic() {
+        if(shouldStartProfile) {
+            System.out.println("Should be executing profile");
+        }
         //Start the profile if it's ready
         if (shouldStartProfile && readyToRunProfile()) {
             startRunningLoadedProfile();
@@ -191,6 +194,7 @@ public class SubsystemPositionOnboardMP extends Subsystem implements SubsystemPo
      */
     @Override
     public void startRunningLoadedProfile() {
+        System.out.println("stasrtrunning");
         motorController.startRunningMP();
     }
 
