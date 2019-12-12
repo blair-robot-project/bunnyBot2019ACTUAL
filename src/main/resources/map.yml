@@ -13,7 +13,7 @@ logger:
           rSquaredThreshhold: 0.75
     - org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
         '@id': drive
-        #Wheelbase: 2.14
+        Wheelbase: 23/12
         leftMaster:
           org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
             &leftMaster
