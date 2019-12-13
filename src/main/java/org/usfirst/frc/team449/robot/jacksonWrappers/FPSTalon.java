@@ -801,7 +801,7 @@ public class FPSTalon extends SmartMotorBase implements SmartMotor, SimpleMotor,
         canTalon.config_kF(1, 1023. / 12., 0);
 
         //Only call position getter once
-        double startPosition = data.resetPosition() ? 0 : getPositionFeet();
+        double startPosition = data.resetPosition() ? 0 : defaultIfNull(getPositionFeet(),0);
 
         //Set point time
         canTalon.configMotionProfileTrajectoryPeriod(data.getPointTimeMillis(), 0);
@@ -816,7 +816,7 @@ public class FPSTalon extends SmartMotorBase implements SmartMotor, SimpleMotor,
             point.profileSlotSelect0 = 1;        // gain selection, we always put MP gains in slot 1.
 
             // Set all the fields of the profile point
-            point.position = feetToEncoder(startPosition + (data.getData()[i][0] * (data.isBackwards() ? -1 : 1)));
+            point.position = defaultIfNull(feetToEncoder(startPosition + (data.getData()[i][0] * (data.isBackwards() ? -1 : 1))), 0);
 
             point.velocity = currentGearSettings.getFeedForwardComponent().calcMPVoltage(data.getData()[i][0],
                     data.getData()[i][1], data.getData()[i][2]);;

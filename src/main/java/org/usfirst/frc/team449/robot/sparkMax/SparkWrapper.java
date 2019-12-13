@@ -50,7 +50,9 @@ public class SparkWrapper extends SmartMotorBase {
      */
 //	@NotNull
     protected final SparkWithMP canSpark;
-    /**
+public SparkWithMP getCanSpark() {
+    return this.canSpark;
+}    /**
      * Forward limit switch
      */
     protected final CANDigitalInput fwdLimitSwitch;
@@ -139,7 +141,7 @@ public class SparkWrapper extends SmartMotorBase {
                         final boolean enableVoltageComp,
                         @Nullable final Integer voltageCompSamples,
                         @Nullable final CANEncoder feedbackDevice,
-                        @Nullable final Integer encoderCPR,
+                        @NotNull @JsonProperty(required=true) final Integer encoderCPR,
                         final boolean reverseSensor,
                         @Nullable final List<PerGearSettings> perGearSettings,
                         @Nullable final Shiftable.gear startingGear,
@@ -749,7 +751,10 @@ public class SparkWrapper extends SmartMotorBase {
      */
     public boolean readyForMP() {
         this.updateMotionProfileStatus();
-        return this.motionProfileStatus.topBufferCnt == 0 || this.motionProfileStatus.btmBufferCnt >= this.minNumPointsInBottomBuffer;
+/*        return this.motionProfileStatus.topBufferCnt == 0 || this.motionProfileStatus.btmBufferCnt >= this.minNumPointsInBottomBuffer;
+/*/
+        return true;
+//*/
     }
 
     /**

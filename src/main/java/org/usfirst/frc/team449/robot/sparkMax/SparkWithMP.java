@@ -234,17 +234,29 @@ public class SparkWithMP extends CANSparkMax {
      * Moves on to the next point if the active point needs to be consumed.
      */
     public void processMotionProfile() {
-        System.out.println("SparkWithMP started MP");
-        if (this.activePointShouldBeConsumed()) this.moveToNextPoint();
+        boolean shouldConsume = this.activePointShouldBeConsumed();
+        if (shouldConsume) this.moveToNextPoint();
     }
 
     private void moveToNextPoint() {
         final TrajectoryPoint newActivePoint = this.activePoint = this.pointQueue.poll();
+        if(newActivePoint != null) System.out.println("New active point: " + trajPointToStr(newActivePoint));
         this.hasUnderrun |= (this.isUnderrun = newActivePoint == null);
-        if (!this.hasUnderrun) {
+        if (!this.isUnderrun) {
             this.setPointReference(this.activePoint());
             this.activePointActivationTime = Clock.currentTimeMillis();
         }
+    }
+
+    private String trajPointToStr(TrajectoryPoint pt) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("TrajectoryPoint(");
+        builder.append("Position: ");
+        builder.append(pt.position);
+        builder.append(", Velocity: ");
+        builder.append(pt.velocity);
+        builder.append(")");
+        return builder.toString();
     }
 
     @Contract(pure = true)
