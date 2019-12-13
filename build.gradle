@@ -13,7 +13,6 @@ version '1.0'
 def ROBOT_MAIN_CLASS = "org.usfirst.frc.team449.robot.Main"
 
 repositories {
-    mavenLocal()
     mavenCentral()
 
     maven { url "https://plugins.gradle.org/m2/" }
@@ -40,7 +39,6 @@ dependencies {
     compile wpi.deps.vendor.java()
     nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
     nativeDesktopZip wpi.deps.vendor.jni(wpi.platforms.desktop)
-    compile 'com.revrobotics.frc:SparkMax-java:1.4.1'
 }
 
 protobuf {
@@ -73,6 +71,14 @@ clean {
     delete protobuf.generatedFilesBaseDir
 }
 
+eclipse {
+    classpath {
+        file.beforeMerged { cp ->
+            cp.entries.add( new org.gradle.plugins.ide.eclipse.model.SourceFolder('gen/main/java', null) )
+        }
+    }
+}
+
 idea {
     module {
         sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java")
@@ -90,8 +96,9 @@ remotes {
     }
 
     jetson {
-        host = '10.4.49.7'
-        user = 'nvidia'
+//        host = 'roboRIO-449-frc.local'  //Default, sometimes doesn't work
+//        host = '172.22.11.2' //USB B cable
+        host = '10.4.49.2' //Radio/ethernet IP        user = 'nvidia'
         knownHosts = allowAnyHosts
         password = 'nvidia'
     }
