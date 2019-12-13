@@ -40,7 +40,6 @@ dependencies {
     compile wpi.deps.vendor.java()
     nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
     nativeDesktopZip wpi.deps.vendor.jni(wpi.platforms.desktop)
-    compile 'com.revrobotics.frc:SparkMax-java:1.4.1'
 }
 
 protobuf {
