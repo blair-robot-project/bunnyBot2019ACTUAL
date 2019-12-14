@@ -365,6 +365,24 @@ buttons:
         mode: OUT_FAST
     action: WHILE_HELD
 autoStartupCommand:
+    org.usfirst.frc.team449.robot.commands.general.CommandSequence:
+      '@id': bunnyShooterCommand
+      commandList:
+        - org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.commands.SolenoidForward:
+            '@id': bunnyShooterForwardCommand
+            subsystem:
+              org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.SolenoidSimple:
+                '@id': bunnyShooter
+                piston:
+                  '@id': bunnyShooterSolenoid
+                  module: 0
+                  forward: 2
+                  reverse: 3
+        - org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.commands.SolenoidReverse:
+            '@id': bunnyShooterRetractCommand
+            subsystem:
+              org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.SolenoidSimple:
+                bunnyShooter
 updater:
   org.usfirst.frc.team449.robot.other.Updater:
     '@id': updater
