@@ -255,12 +255,14 @@ logger:
         enableVoltageComp: true
         inverted: false
     - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-        '@id': carouselMotor
+        '@id': agitatorMotor
         port: 5 #Agitator
         enableBrakeMode: false
         enableVoltageComp: true
         currentLimit: 30
         reverseOutput: false
+#        feedbackDevice: QuadEncoder
+#        encoderCPR: 1024
 defaultCommands:
   - subsystem:
       org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
@@ -268,13 +270,6 @@ defaultCommands:
     command:
       org.usfirst.frc.team449.robot.commands.multiInterface.drive.UnidirectionalNavXShiftingDefaultDrive:
         defaultDriveCommand
-  - subsystem:
-      org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.AnalogMotorPosition:
-        '@id': carousel
-        motor:
-          org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-            carouselMotor
-        maxPos: 999999999 #Unnecessary for a carousel?
 teleopStartupCommand:
   org.usfirst.frc.team449.robot.commands.general.ParallelCommandGroup:
     '@id': teleopStartupCommand
@@ -311,40 +306,73 @@ buttons:
     action: WHEN_PRESSED
   - button:
       org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
-        '@id': intakeButton # intakeButtonStart
+        '@id': intakeStartButton
         joystick:
           org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
             mechanismsGamepad
-        buttonNumber: 0
+        buttonNumber: 1 #A
     command:
-      org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
-        '@id': startFuelIntake
-        subsystem:
-          org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
-            '@id': fuelIntake
-            motor:
-              org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
-                intakeMotor
-            inFastVel: 1
-            inSlowVel: 0
-            outFastVel: -0.2
-        mode: IN_FAST
-    action: WHILE_HELD
-#  - button:
-#      org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
-#        '@id': intakeButtonStop
-#        joystick:
-#          org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
-#            mechanismsGamepad
-#        buttonNumber: 1
-#    command:
-#      org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
-#        '@id': stopFuelIntake
-#        subsystem:
-#          org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
-#            fuelIntake
-#        mode: "OFF"
-#    action: WHEN_PRESSED
+      org.usfirst.frc.team449.robot.commands.general.CommandSequence:
+        '@id': intakeSequence
+        commandList:
+#          - org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.commands.CarouselRotate:
+#              '@id': intakeAgitator
+#              motor:
+#                org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.AnalogMotorPosition:
+#                  '@id': carousel
+#                  motor:
+#                    org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+#                      carouselMotor
+#                  maxPos: 999999999 #Unnecessary for a carousel?
+          - org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
+              '@id': startFuelIntake
+              subsystem:
+                org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+                  '@id': fuelIntake
+                  motor:
+                    org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
+                      intakeMotor
+                  inFastVel: 1
+                  inSlowVel: 0
+                  outFastVel: -0.2
+              mode: IN_FAST
+          - org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
+              '@id': startAgitatorIntake
+              subsystem:
+                org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+                  '@id': agitatorIntake
+                  motor:
+                    org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+                      agitatorMotor
+                  inFastVel: 0.8
+                  inSlowVel: 0
+                  outFastVel: -0.8
+              mode: IN_FAST
+    action: WHEN_PRESSED
+  - button:
+      org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+        '@id': intakeStopButton
+        joystick:
+          org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+            mechanismsGamepad
+        buttonNumber: 2 #B
+    command:
+      org.usfirst.frc.team449.robot.commands.general.CommandSequence:
+        '@id': intakeStopSequence
+        commandList:
+        - org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
+            '@id': stopFuelIntake
+            subsystem:
+              org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+                fuelIntake
+            mode: "OFF"
+        - org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
+            '@id': stopAgitatorIntake
+            subsystem:
+              org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+                agitatorIntake
+            mode: "OFF"
+    action: WHEN_PRESSED
   - button:
       org.usfirst.frc.team449.robot.oi.buttons.dPadButton:
         forceLowGear
@@ -358,20 +386,24 @@ buttons:
     action: WHEN_RELEASED
   - button:
       org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
-        '@id': shooterButton
+        '@id': shooterStartButton
         joystick:
           org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
             mechanismsGamepad
-        buttonNumber: 2
+        buttonNumber: 3 #X
     command:
       org.usfirst.frc.team449.robot.commands.general.CommandSequence:
         '@id': shooterSequence
         commandList:
-          - org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.commands.CarouselRotate:
-              '@id': agitatorRotate
-              motor:
-                org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.AnalogMotorPosition:
-                  carousel
+#          - org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.commands.CarouselRotate:
+#              '@id': shooterAgitator
+#              motor:
+#                org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.AnalogMotorPosition:
+#                  '@id': carousel
+#                  motor:
+#                    org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+#                      carouselMotor
+#                  maxPos: 99999999 #Unnecessary for a carousel?
           - org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
               '@id': shooterCommand
               subsystem:
@@ -380,11 +412,43 @@ buttons:
                   motor:
                     org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
                       shooterMotor
-                  inFastVel: -1
+                  inFastVel: -0.5
                   inSlowVel: 0
-                  outFastVel: 1
+                  outFastVel: 0.5
               mode: OUT_FAST
-    action: WHILE_HELD
+          - org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
+              '@id': stopAgitatorIntake2
+              subsystem:
+                org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+                  agitatorIntake
+              mode: "OFF"
+    action: WHEN_PRESSED
+  - button:
+      org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+        '@id': shooterStopButton
+        joystick:
+          org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+            mechanismsGamepad
+        buttonNumber: 4 #Y
+    command:
+      org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
+        '@id': shooterStopCommand
+        subsystem:
+          org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+            shooter
+        mode: IN_SLOW
+    action: WHEN_PRESSED
+#  - button:
+#      org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+#        '@id': shooterAgitatorStopButton
+#        joystick:
+#          org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+#            mechanismsGamepad
+#        buttonNumber: 4 #Y
+#    command:
+#      org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.commands.CarouselRotate:
+#        shooterAgitator
+#    action: CANCEL_WHEN_PRESSED
 autoStartupCommand:
     org.usfirst.frc.team449.robot.commands.general.CommandSequence:
       '@id': bunnyShooterCommand
