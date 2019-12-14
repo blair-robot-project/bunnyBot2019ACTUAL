@@ -40,7 +40,7 @@ dependencies {
     compile wpi.deps.vendor.java()
     nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
     nativeDesktopZip wpi.deps.vendor.jni(wpi.platforms.desktop)
-    compile 'com.revrobotics.frc:SparkMax-java:1.4.1'
+//    compile 'com.revrobotics.frc:SparkMax-java:1.4.1'
 }
 
 protobuf {
@@ -83,8 +83,8 @@ idea {
 remotes {
     rio {
 //        host = 'roboRIO-449-frc.local'  //Default, sometimes doesn't work
-//        host = '172.22.11.2' //USB B cable
-        host = '10.4.49.2' //Radio/ethernet IP
+//        host = '172.22.11.10' //USB B cable
+//        host = '10.4.49.2' //Radio/ethernet IP
         user = 'lvuser'
         knownHosts = allowAnyHosts
     }
