@@ -248,13 +248,12 @@ logger:
         slaveVictors:
           - port: 10 #Shooter Victor
             invertType: FollowMaster
-    - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+    - org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
         '@id': intakeMotor
         port: 8 #Intake
-        enableBrakeMode: false
+        brakeMode: false
         enableVoltageComp: true
-        currentLimit: 30
-        reverseOutput: false
+        inverted: false
 defaultCommands:
   - subsystem:
       org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
@@ -298,7 +297,7 @@ buttons:
     action: WHEN_PRESSED
   - button:
       org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
-        '@id': intakeButtonStart
+        '@id': intakeButton # intakeButtonStart
         joystick:
           org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
             mechanismsGamepad
@@ -310,28 +309,28 @@ buttons:
           org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
             '@id': fuelIntake
             motor:
-              org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+              org.usfirst.frc.team449.robot.generalInterfaces.simpleMotor.MappedVictorSPX:
                 intakeMotor
             inFastVel: 1
             inSlowVel: 0
             outFastVel: -0.2
         mode: IN_FAST
-    action: WHEN_PRESSED
-  - button:
-      org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
-        '@id': intakeButtonStop
-        joystick:
-          org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
-            mechanismsGamepad
-        buttonNumber: 1
-    command:
-      org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
-        '@id': stopFuelIntake
-        subsystem:
-          org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
-            fuelIntake
-        mode: "OFF"
-    action: WHEN_PRESSED
+    action: WHILE_HELD
+#  - button:
+#      org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+#        '@id': intakeButtonStop
+#        joystick:
+#          org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+#            mechanismsGamepad
+#        buttonNumber: 1
+#    command:
+#      org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
+#        '@id': stopFuelIntake
+#        subsystem:
+#          org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+#            fuelIntake
+#        mode: "OFF"
+#    action: WHEN_PRESSED
   - button:
       org.usfirst.frc.team449.robot.oi.buttons.dPadButton:
         forceLowGear
