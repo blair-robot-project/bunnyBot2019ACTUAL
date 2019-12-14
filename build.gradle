@@ -71,6 +71,14 @@ clean {
     delete protobuf.generatedFilesBaseDir
 }
 
+eclipse {
+    classpath {
+        file.beforeMerged { cp ->
+            cp.entries.add( new org.gradle.plugins.ide.eclipse.model.SourceFolder('gen/main/java', null) )
+        }
+    }
+}
+
 idea {
     module {
         sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java")
@@ -88,8 +96,9 @@ remotes {
     }
 
     jetson {
-        host = '10.4.49.7'
-        user = 'nvidia'
+//        host = 'roboRIO-449-frc.local'  //Default, sometimes doesn't work
+//        host = '172.22.11.2' //USB B cable
+        host = '10.4.49.2' //Radio/ethernet IP        user = 'nvidia'
         knownHosts = allowAnyHosts
         password = 'nvidia'
     }
