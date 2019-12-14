@@ -19,7 +19,7 @@ logger:
             &leftMaster
             '@id': leftMaster
             name: left
-            port: 6
+            port: 6 #Left Middle Drive
             PDP:
               org.usfirst.frc.team449.robot.jacksonWrappers.PDP: PDP
             voltagePerCurrentLinReg:
@@ -67,17 +67,17 @@ logger:
               Status_4_AinTempVbat: 15
             slaveTalons:
               - org.usfirst.frc.team449.robot.jacksonWrappers.SlaveTalon:
-                  port: 2
+                  port: 2 #Left Left Drive
                   invertType: FollowMaster
               - org.usfirst.frc.team449.robot.jacksonWrappers.SlaveTalon:
-                  port: 8
+                  port: 7 #Left Right Drive
                   invertType: FollowMaster
         rightMaster:
           org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
             <<: *leftMaster
             '@id': rightMaster
             name: right
-            port: 3
+            port: 3 #Right Middle Drive
             reverseOutput: false
             reverseSensor: false
             perGearSettings:
@@ -101,11 +101,11 @@ logger:
                     interceptVoltageRev: 1.487342
             slaveTalons:
               - org.usfirst.frc.team449.robot.jacksonWrappers.SlaveTalon:
-                  port: 4
-                  #inverted: false
-              - org.usfirst.frc.team449.robot.jacksonWrappers.SlaveTalon:
-                  port: 22
-                  #inverted: false
+                  port: 4 #Right Right Drive
+                  invertType: FollowMaster
+            slaveVictors:
+              - port: 42 #Right Left Drive
+                invertType: FollowMaster
         startingOverrideAutoshift: false
         ahrs:
           org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS:
@@ -238,25 +238,19 @@ logger:
             '@id': upshiftDebouncer
             bufferTimeSeconds: 0.06
           upshiftFwdThresh: 0.4
-#    - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-#        '@id': shooterMotor
-#        port: 7
-#        enableBrakeMode: false
-#        enableVoltageComp: true
-#        currentLimit: 30
-#        reverseOutput: false
-#    - ////////////////////////////INTAKE
     - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-        '@id': intakeMotor
-        port: 5
+        '@id': shooterMotor
+        port: 1 #Shooter Talon
         enableBrakeMode: false
         enableVoltageComp: true
         currentLimit: 30
         reverseOutput: false
-#        //////////////////////////////INTAKE
+        slaveVictors:
+          - port: 10 #Shooter Victor
+            invertType: FollowMaster
     - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-        '@id': carouselMotor
-        port: 9
+        '@id': intakeMotor
+        port: 8 #Intake
         enableBrakeMode: false
         enableVoltageComp: true
         currentLimit: 30
@@ -277,15 +271,6 @@ teleopStartupCommand:
           subsystem:
             org.usfirst.frc.team449.robot.subsystem.singleImplementation.pneumatics.Pneumatics:
               pneumatics
-      - org.usfirst.frc.team449.robot.subsystem.interfaces.binaryMotor.commands.TurnMotorOn:
-          '@id': spinCarousel
-          subsystem:
-            org.usfirst.frc.team449.robot.subsystem.interfaces.binaryMotor.BinaryMotorSimple:
-              '@id': carouselSubsystem
-              motor:
-                org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-                  carouselMotor
-              velocity: 0.1
 buttons:
   - button:
       org.usfirst.frc.team449.robot.oi.buttons.dPadButton:
@@ -311,7 +296,6 @@ buttons:
                 org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
                   drive
     action: WHEN_PRESSED
-#    //////////////////INTAKE START BUTTON
   - button:
       org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
         '@id': intakeButtonStart
@@ -333,7 +317,6 @@ buttons:
             outFastVel: -0.2
         mode: IN_FAST
     action: WHEN_PRESSED
-#    //////////////////INTAKE STOP BUTTON
   - button:
       org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
         '@id': intakeButtonStop
@@ -360,48 +343,27 @@ buttons:
             drive
         override: false
     action: WHEN_RELEASED
-#    This is the button for the agitator
-#  - button:
-#      org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
-#        '@id': carouselButton
-#        joystick:
-#          org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
-#            mechanismsGamepad
-#        buttonNumber: 2
-#    command:
-#      org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.commands.CarouselRotate:
-#        '@id': carouselCommand
-#        subsystem:
-#          org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.AnalogMotorPosition:
-#            '@id': carousel
-#            carouselMotor:
-#              org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-#                carouselMotor
-#            minPos: 2
-#            maxPos: 6
-
-#    This is the button for shooter and it does not work
-#  - button:
-#      org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
-#        '@id': shooterButton
-#        joystick:
-#          org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
-#            mechanismsGamepad
-#        buttonNumber: 2
-#    command:
-#      org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
-#        '@id': shooterCommand
-#        subsystem:
-#          org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
-#            '@id': shooter
-#            motor:
-#              org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-#                shooterMotor
-#            inFastVel: -1
-#            inSlowVel: 0
-#            outFastVel: 1
-#        mode: OUT_FAST
-#    action: WHILE_HELD
+  - button:
+      org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
+        '@id': shooterButton
+        joystick:
+          org.usfirst.frc.team449.robot.jacksonWrappers.MappedJoystick:
+            mechanismsGamepad
+        buttonNumber: 2
+    command:
+      org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
+        '@id': shooterCommand
+        subsystem:
+          org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
+            '@id': shooter
+            motor:
+              org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+                shooterMotor
+            inFastVel: -1
+            inSlowVel: 0
+            outFastVel: 1
+        mode: OUT_FAST
+    action: WHILE_HELD
 autoStartupCommand:
     org.usfirst.frc.team449.robot.commands.general.CommandSequence:
       '@id': bunnyShooterCommand
