@@ -19,7 +19,7 @@ logger:
             &leftMaster
             '@id': leftMaster
             name: left
-            port: 1
+            port: 6
             PDP:
               org.usfirst.frc.team449.robot.jacksonWrappers.PDP: PDP
             voltagePerCurrentLinReg:
@@ -65,17 +65,17 @@ logger:
             updaterProcessPeriodSecs: 0.005
             statusFrameRatesMillis: !!map
               Status_4_AinTempVbat: 15
-            slaveVictors:
+            slaveTalons:
               - port: 2
                 invertType: FollowMaster
-              - port: 3
+              - port: 8
                 invertType: FollowMaster
         rightMaster:
           org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
             <<: *leftMaster
             '@id': rightMaster
             name: right
-            port: 4
+            port: 3
             reverseOutput: false
             reverseSensor: false
             perGearSettings:
@@ -97,10 +97,10 @@ logger:
                     kARev: 0.154705
                     interceptVoltageFwd: 1.400309
                     interceptVoltageRev: 1.487342
-            slaveVictors:
-              - port: 12
+            slaveTalons:
+              - port: 4
                 #inverted: false
-              - port: 6
+#              - port:
                 #inverted: false
         startingOverrideAutoshift: false
         ahrs:
