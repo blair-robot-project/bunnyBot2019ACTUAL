@@ -255,6 +255,13 @@ logger:
         enableVoltageComp: true
         currentLimit: 30
         reverseOutput: false
+    - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+        '@id': carouselMotor
+        port: 5 #Agitator
+        enableBrakeMode: false
+        enableVoltageComp: true
+        currentLimit: 30
+        reverseOutput: false
 defaultCommands:
   - subsystem:
       org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
@@ -262,6 +269,19 @@ defaultCommands:
     command:
       org.usfirst.frc.team449.robot.commands.multiInterface.drive.UnidirectionalNavXShiftingDefaultDrive:
         defaultDriveCommand
+  - subsystem:
+      org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.AnalogMotorPosition:
+        '@id': carousel
+        motor:
+          org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+            carouselMotor
+        maxPos: 999999999 #Unnecessary for a carousel?
+    command:
+      org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.commands.CarouselRotate:
+        '@id': agitatorRotate
+        motor:
+          org.usfirst.frc.team449.robot.subsystem.interfaces.analogMotor.AnalogMotorPosition:
+            carousel
 teleopStartupCommand:
   org.usfirst.frc.team449.robot.commands.general.ParallelCommandGroup:
     '@id': teleopStartupCommand
