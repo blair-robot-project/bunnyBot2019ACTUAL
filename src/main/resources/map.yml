@@ -336,18 +336,6 @@ buttons:
                   inSlowVel: 0
                   outFastVel: -0.2
               mode: IN_FAST
-          - org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
-              '@id': startAgitatorIntake
-              subsystem:
-                org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
-                  '@id': agitatorIntake
-                  motor:
-                    org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
-                      agitatorMotor
-                  inFastVel: 0.8
-                  inSlowVel: 0
-                  outFastVel: -0.8
-              mode: IN_FAST
     action: WHEN_PRESSED
   - button:
       org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
@@ -370,7 +358,13 @@ buttons:
             '@id': stopAgitatorIntake
             subsystem:
               org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
-                agitatorIntake
+                '@id': agitatorIntake
+                motor:
+                  org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+                    agitatorMotor
+                inFastVel: 0.15
+                inSlowVel: 0
+                outFastVel: -0.15
             mode: "OFF"
     action: WHEN_PRESSED
   - button:
@@ -417,11 +411,11 @@ buttons:
                   outFastVel: 0.5
               mode: OUT_FAST
           - org.usfirst.frc.team449.robot.subsystem.interfaces.intake.commands.SetIntakeMode:
-              '@id': stopAgitatorIntake2
+              '@id': startAgitatorIntake
               subsystem:
                 org.usfirst.frc.team449.robot.subsystem.interfaces.intake.IntakeSimple:
                   agitatorIntake
-              mode: "OFF"
+              mode: IN_FAST
     action: WHEN_PRESSED
   - button:
       org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
