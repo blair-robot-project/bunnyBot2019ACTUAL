@@ -19,7 +19,7 @@ logger:
             &leftMaster
             '@id': leftMaster
             name: left
-            port: 6
+            port: 6 #Left Middle Drive
             PDP:
               org.usfirst.frc.team449.robot.jacksonWrappers.PDP: PDP
             voltagePerCurrentLinReg:
@@ -66,16 +66,18 @@ logger:
             statusFrameRatesMillis: !!map
               Status_4_AinTempVbat: 15
             slaveTalons:
-              - port: 2
-                invertType: FollowMaster
-              - port: 8
-                invertType: FollowMaster
+              - org.usfirst.frc.team449.robot.jacksonWrappers.SlaveTalon:
+                  port: 2 #Left Left Drive
+                  invertType: FollowMaster
+              - org.usfirst.frc.team449.robot.jacksonWrappers.SlaveTalon:
+                  port: 7 #Left Right Drive
+                  invertType: FollowMaster
         rightMaster:
           org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
             <<: *leftMaster
             '@id': rightMaster
             name: right
-            port: 3
+            port: 3 #Right Middle Drive
             reverseOutput: false
             reverseSensor: false
             perGearSettings:
@@ -98,10 +100,11 @@ logger:
                     interceptVoltageFwd: 1.400309
                     interceptVoltageRev: 1.487342
             slaveTalons:
-              - port: 4
-                #inverted: false
-#              - port:
-                #inverted: false
+              - org.usfirst.frc.team449.robot.jacksonWrappers.SlaveTalon:
+                  port: 4 #Right Right Drive
+                  invertType: FollowMaster
+#              - port: !!!!!! #Right Left Drive (MISSING)
+#                invertType: FollowMaster
         startingOverrideAutoshift: false
         ahrs:
           org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS:
@@ -236,14 +239,17 @@ logger:
           upshiftFwdThresh: 0.4
     - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
         '@id': shooterMotor
-        port: 7
+        port: 1 #Shooter Talon
         enableBrakeMode: false
         enableVoltageComp: true
         currentLimit: 30
         reverseOutput: false
+        slaveVictors:
+          - port: 10 #Shooter Victor
+            invertType: FollowMaster
     - org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
         '@id': intakeMotor
-        port: 5
+        port: 8 #Intake
         enableBrakeMode: false
         enableVoltageComp: true
         currentLimit: 30
