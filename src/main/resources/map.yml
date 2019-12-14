@@ -311,7 +311,7 @@ buttons:
                 org.usfirst.frc.team449.robot.drive.unidirectional.DriveUnidirectionalWithGyroShiftable:
                   drive
     action: WHEN_PRESSED
-#    //////////////////INTAKE BUTTON
+#    //////////////////INTAKE START BUTTON
   - button:
       org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
         '@id': intakeButtonStart
@@ -333,7 +333,7 @@ buttons:
             outFastVel: -0.2
         mode: IN_FAST
     action: WHEN_PRESSED
-#    //////////////////INTAKE BUTTON
+#    //////////////////INTAKE STOP BUTTON
   - button:
       org.usfirst.frc.team449.robot.oi.buttons.SimpleButton:
         '@id': intakeButtonStop
@@ -404,7 +404,7 @@ buttons:
 #    action: WHILE_HELD
 autoStartupCommand:
   org.usfirst.frc.team449.robot.commands.general.CommandSequence:
-    '@id': bunnyShooterCommand
+    '@id': autoStartupCommand
     commandList:
       - org.usfirst.frc.team449.robot.subsystem.interfaces.solenoid.commands.SolenoidForward:
           '@id': bunnyShooterForwardCommand
