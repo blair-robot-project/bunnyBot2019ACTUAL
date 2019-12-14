@@ -103,8 +103,9 @@ logger:
               - org.usfirst.frc.team449.robot.jacksonWrappers.SlaveTalon:
                   port: 4 #Right Right Drive
                   invertType: FollowMaster
-#              - port: !!!!!! #Right Left Drive (MISSING)
-#                invertType: FollowMaster
+            slaveVictors:
+              - port: 42 #Right Left Drive
+                invertType: FollowMaster
         startingOverrideAutoshift: false
         ahrs:
           org.usfirst.frc.team449.robot.jacksonWrappers.MappedAHRS:
