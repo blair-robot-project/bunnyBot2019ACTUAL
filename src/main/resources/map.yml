@@ -270,6 +270,15 @@ teleopStartupCommand:
           subsystem:
             org.usfirst.frc.team449.robot.subsystem.singleImplementation.pneumatics.Pneumatics:
               pneumatics
+      - org.usfirst.frc.team449.robot.subsystem.interfaces.binaryMotor.commands.TurnMotorOn:
+          '@id': spinCarousel
+          subsystem:
+            org.usfirst.frc.team449.robot.subsystem.interfaces.binaryMotor.BinaryMotorSimple:
+              '@id': carouselSubsystem
+              motor:
+                org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
+                  carouselMotor
+              velocity: 0.1
 buttons:
   - button:
       org.usfirst.frc.team449.robot.oi.buttons.dPadButton:
