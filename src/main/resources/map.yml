@@ -104,7 +104,7 @@ logger:
                   port: 4 #Right Right Drive
                   invertType: FollowMaster
             slaveVictors:
-              - port: 42 #Right Left Drive
+              - port: 42 #Right Left Drive # #####
                 invertType: FollowMaster
         startingOverrideAutoshift: false
         ahrs:
@@ -243,7 +243,7 @@ logger:
         port: 1 #Shooter Talon
         enableBrakeMode: false
         enableVoltageComp: true
-        currentLimit: 30
+        currentLimit: 30 # #####
         reverseOutput: false
         slaveVictors:
           - port: 10 #Shooter Victor
@@ -259,7 +259,7 @@ logger:
         port: 5 #Agitator
         enableBrakeMode: false
         enableVoltageComp: true
-        currentLimit: 30
+        currentLimit: 30 # #####
         reverseOutput: false
 #        feedbackDevice: QuadEncoder
 #        encoderCPR: 1024
