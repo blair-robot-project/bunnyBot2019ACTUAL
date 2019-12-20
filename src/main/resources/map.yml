@@ -104,7 +104,7 @@ logger:
                   port: 4 #Right Right Drive
                   invertType: FollowMaster
             slaveVictors:
-              - port: 42 #Right Left Drive # #####
+              - port: 9 #Right Left Drive # #####
                 invertType: FollowMaster
         startingOverrideAutoshift: false
         ahrs:
@@ -362,9 +362,9 @@ buttons:
                 motor:
                   org.usfirst.frc.team449.robot.jacksonWrappers.FPSTalon:
                     agitatorMotor
-                inFastVel: 0.15
+                inFastVel: 0.2
                 inSlowVel: 0
-                outFastVel: -0.15
+                outFastVel: -0.2
             mode: "OFF"
     action: WHEN_PRESSED
   - button:
